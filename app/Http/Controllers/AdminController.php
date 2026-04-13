@@ -35,7 +35,7 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $pendingProfiles = \App\Models\AlumniProfile::where('verification_status', 'pending')
+        $pendingProfiles = \App\Models\AlumniProfile::whereIn('verification_status', ['pending', 'in_review'])
             ->with(['educations', 'certificates', 'seaServices'])
             ->orderBy('updated_at', 'asc')
             ->get();
@@ -58,6 +58,22 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Profile Approved!');
+    }
+
+    public function markAsReviewing(Request $request, $id)
+    {
+        if (!in_array($request->user()->role_id, ['super_admin', 'verifier'])) {
+            abort(403);
+        }
+        
+        $profile = \App\Models\AlumniProfile::findOrFail($id);
+        if ($profile->verification_status === 'pending') {
+            $profile->update([
+                'verification_status' => 'in_review'
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     public function index(Request $request)

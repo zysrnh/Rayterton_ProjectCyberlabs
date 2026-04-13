@@ -316,6 +316,7 @@ const submitSea = () => {
                             <p class="text-blue-700 mt-1 text-sm">Jika seluruh data (Master Profil, Pendidikan, Sertifikat, dan Sea Service) sudah lengkap, ajukan profil Anda untuk dikonfirmasi oleh verifikator.</p>
                             
                             <p v-if="profile?.verification_status === 'pending'" class="text-amber-600 mt-2 font-bold text-sm">Status: ⏳ Menunggu Verifikasi Admin.</p>
+                            <p v-if="profile?.verification_status === 'in_review'" class="text-indigo-600 mt-2 font-bold text-sm animate-pulse">Status: 👀 Sedang di-Review oleh Admin...</p>
                             <p v-if="profile?.verification_status === 'verified'" class="text-emerald-600 mt-2 font-bold text-sm">Status: ✅ Profil Terverifikasi.</p>
                         </div>
                         <button 
@@ -357,8 +358,8 @@ const submitSea = () => {
                         <input v-model="eduForm.graduation_year" type="number" min="1950" max="2099" class="w-full mt-1 border-gray-300 rounded-md" required />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">File Ijazah (PDF/JPG)</label>
-                        <input @input="eduForm.diploma_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg" />
+                        <label class="block text-sm font-medium text-gray-700">File Ijazah (PDF/JPG/DOC)</label>
+                        <input @input="eduForm.diploma_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
                     </div>
                     <div class="mt-6 flex justify-end gap-3">
                         <button type="button" @click="showEducationModal = false" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">Batal</button>
@@ -395,8 +396,8 @@ const submitSea = () => {
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">File Sertifikat (PDF/JPG)</label>
-                        <input @input="certForm.cert_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg" />
+                        <label class="block text-sm font-medium text-gray-700">File Sertifikat (PDF/JPG/DOC)</label>
+                        <input @input="certForm.cert_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
                     </div>
                     <div class="mt-6 flex justify-end gap-3">
                         <button type="button" @click="showCertificateModal = false" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">Batal</button>
@@ -439,8 +440,8 @@ const submitSea = () => {
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">File Kontrak PKL / Buku Pelaut</label>
-                        <input @input="seaForm.contract_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg" />
+                        <label class="block text-sm font-medium text-gray-700">File Kontrak PKL / Buku Pelaut (PDF/JPG/DOC)</label>
+                        <input @input="seaForm.contract_file = $event.target.files[0]" type="file" class="w-full mt-1 text-sm" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
                     </div>
                     <div class="mt-6 flex justify-end gap-3">
                         <button type="button" @click="showSeaServiceModal = false" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">Batal</button>

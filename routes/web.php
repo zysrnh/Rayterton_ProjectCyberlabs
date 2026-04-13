@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/users', [\App\Http\Controllers\AdminController::class, 'store'])->name('admin.users.store');
 
     Route::get('/admin/verifications', [\App\Http\Controllers\AdminController::class, 'queue'])->name('admin.verifications.queue');
+    Route::post('/admin/verifications/{id}/in-review', [\App\Http\Controllers\AdminController::class, 'markAsReviewing'])->name('admin.verifications.in_review');
     Route::post('/admin/verifications/{id}/approve', [\App\Http\Controllers\AdminController::class, 'approve'])->name('admin.verifications.approve');
 
     Route::put('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');

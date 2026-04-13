@@ -14,6 +14,14 @@ const showSlideOver = ref(false);
 const reviewProfile = (profile) => {
     selectedProfile.value = profile;
     showSlideOver.value = true;
+    
+    // Mark as reviewing if it was pending
+    if (profile.verification_status === 'pending') {
+        router.post(route('admin.verifications.in_review', profile.id), {}, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    }
 };
 
 const approve = () => {

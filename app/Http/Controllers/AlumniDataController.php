@@ -15,7 +15,7 @@ class AlumniDataController extends Controller
             'institution_name' => 'required|string|max:255',
             'degree_program' => 'required|string|max:255',
             'graduation_year' => 'required|integer|min:1950|max:2099',
-            'diploma_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'diploma_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
         ]);
 
         $path = null;
@@ -46,7 +46,7 @@ class AlumniDataController extends Controller
             'issuing_body' => 'required|string|max:255',
             'issued_date' => 'required|date',
             'expiry_date' => 'nullable|date|after:issued_date',
-            'cert_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'cert_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
         ]);
 
         $path = null;
@@ -79,7 +79,7 @@ class AlumniDataController extends Controller
             'rank_at_time' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
-            'contract_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'contract_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:2048',
         ]);
 
         $path = null;
