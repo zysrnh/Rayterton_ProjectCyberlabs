@@ -12,22 +12,41 @@ class AlumniProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'alumni_id',
+        'alumni_code',
         'full_name',
         'rank',
-        'readiness_score',
-        'sea_time_total',
-        'availability_status',
-        'profile_completeness',
-        'preferred_route',
-        'preferred_vessel',
-        'phone',
         'region',
-        'open_to_offers',
+        'phone',
+        'avatar_url',
+        'preferred_vessel_type',
+        'preferred_route',
+        'availability_status',
+        'readiness_score',
+        'sea_time_total_months',
+        'profile_completeness',
+        'verification_status',
+        'verified_at',
+        'membership_status',
+        'linkedin_url',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function educations()
+    {
+        return $this->hasMany(Education::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function seaServices()
+    {
+        return $this->hasMany(SeaService::class);
     }
 }

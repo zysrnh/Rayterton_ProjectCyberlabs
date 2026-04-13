@@ -8,10 +8,18 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            AdminSeeder::class,
-            SuperAdminSeeder::class,
-            StrategicPlanSeeder::class,
+        \App\Models\User::create([
+            'email' => 'superadmin@rayterton.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role_id' => 'super_admin',
+            'is_active' => true,
+        ]);
+
+        \App\Models\User::create([
+            'email' => 'verifier@rayterton.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role_id' => 'verifier',
+            'is_active' => true,
         ]);
     }
 }

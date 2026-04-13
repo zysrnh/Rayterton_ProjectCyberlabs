@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('alumni_code')->unique()->nullable();
             $table->string('full_name')->nullable();
-            $table->enum('rank', ['Captain', 'Chief Officer', 'Second Officer', 'Chief Engineer', 'Rating'])->nullable();
+            $table->string('rank')->nullable();
             $table->string('region')->nullable();
             $table->string('phone')->nullable();
             $table->string('avatar_url')->nullable();
