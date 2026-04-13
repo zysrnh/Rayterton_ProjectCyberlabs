@@ -41,13 +41,13 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $pendingProfiles = \App\Models\AlumniProfile::whereIn('verification_status', ['pending', 'in_review'])
+        $allProfiles = \App\Models\AlumniProfile::whereNot('verification_status', 'unverified')
             ->with(['educations', 'certificates', 'seaServices'])
-            ->orderBy('updated_at', 'asc')
+            ->orderBy('updated_at', 'desc')
             ->get();
 
         return Inertia::render('Admin/VerificationQueue', [
-            'queue' => $pendingProfiles
+            'queue' => $allProfiles
         ]);
     }
 

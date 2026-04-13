@@ -11,52 +11,60 @@ class AlumniProfileController extends Controller
 {
     public function updateMasterProfile(Request $request)
     {
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'rank' => 'required|string',
-            'region' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'preferred_vessel_type' => 'required|string|max:255',
-            'preferred_route' => 'required|string|max:255',
-        ]);
+        $profile = $request->user()->alumniProfile;
 
-        $user = $request->user();
-        if ($user->role_id !== 'alumni') {
-            abort(403);
-        }
-
-        $profile = $user->alumniProfile;
-
-        // If profile doesn't exist (because the automatic generation failed on first registration attempt), create one
         if (!$profile) {
-            $profile = $user->alumniProfile()->create([
+            $profile = $request->user()->alumniProfile()->create([
                 'profile_completeness' => 0,
             ]);
-            $profile->refresh();
         }
 
-        // Auto-generate alumni_code if not presents
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'rank' => 'required|string|max:255',
+            'region' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'preferred_vessel_type' => 'nullable|string|max:255',
+            'preferred_route' => 'nullable|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $profile->avatar_url = $path;
+        }
+
+        // Auto-generate alumni_code if not present
         if (!$profile->alumni_code) {
             $year = date('y');
             $random = rand(10000, 99999);
             $profile->alumni_code = "AL-{$year}-{$random}";
         }
 
-        // Updating basic fields
-        $profile->full_name = $request->full_name;
-        $profile->rank = $request->rank;
-        $profile->region = $request->region;
-        $profile->phone = $request->phone;
-        $profile->preferred_vessel_type = $request->preferred_vessel_type;
-        $profile->preferred_route = $request->preferred_route;
-        
-        // Initial setup for the readiness score & completion
-        // Roughly estimation for now: if all master profile fields filled, gives 20%
-        $profile->profile_completeness = 20;
-
-        $profile->save();
+        $profile->update([
+            'full_name' => $request->full_name,
+            'rank' => $request->rank,
+            'region' => $request->region,
+            'phone' => $request->phone,
+            'preferred_vessel_type' => $request->preferred_vessel_type,
+            'preferred_route' => $request->preferred_route,
+            'profile_completeness' => max($profile->profile_completeness, 20)
+        ]);
 
         return redirect()->back()->with('success', 'Master profile successfully updated.');
+    }
+
+    public function toggleAvailability()
+    {
+        $profile = auth()->user()->alumniProfile;
+        
+        $newStatus = $profile->availability_status === 'open_to_offers' ? 'unavailable' : 'open_to_offers';
+        
+        $profile->update([
+            'availability_status' => $newStatus
+        ]);
+
+        return redirect()->back()->with('success', 'Status ketersediaan berhasil diperbarui!');
     }
 
     public function submitForVerification(Request $request)
