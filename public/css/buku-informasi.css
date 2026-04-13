@@ -1,5 +1,14 @@
+.bukus-informasi-anggota{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+}
+
 .buku-informasi-anggota {
-    padding: 50px 100px;
+    width: 100%;
+    max-width: 1400px;
 }
 
 .buku-filter {
@@ -10,7 +19,7 @@
 
 .buku-informasi-anggota-content {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 30px
 }
 
@@ -20,7 +29,7 @@
 }
 
 @media (max-width: 1024px) {
-    .buku-informasi-anggota {
+    .bukus-informasi-anggota {
         padding: 20px;
     }
 

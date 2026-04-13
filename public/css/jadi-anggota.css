@@ -1,18 +1,18 @@
 .ja-page-banner {
     color: #04293B;
-    padding: 100px;
+    padding: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .ja-page-banner h1 {
-    font-size: 50px;
+    font-size: 35px;
     margin-bottom: 15px;
 }
 
 .ja-page-banner p {
-    font-size: 20px;
+    font-size: 15px;
 }
 
 .rules {
@@ -23,7 +23,7 @@
 }
 
 .rules h3 {
-    font-size: 30px;
+    font-size: 25px;
 }
 
 /* Stepper Progress */

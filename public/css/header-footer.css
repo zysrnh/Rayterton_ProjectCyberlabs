@@ -3,14 +3,14 @@ header {
     width: 100%;
     background-color: #04293B;
     color: white;
-    padding: 15px 100px;
+    padding: 15px 50px;
     position: sticky;
     top: 0;
     z-index: 999;
 }
 
 nav {
-    max-width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -45,11 +45,11 @@ nav {
 }
 
 .logo1 {
-    width: 100px;
+    width: 80px;
 }
 
 .logo2 {
-    width: 150px;
+    width: 120px;
 }
 
 .menu-toggle {
@@ -66,7 +66,7 @@ nav {
 @media (max-width: 1024px) {
 
     header {
-        padding: 10px 50px;
+        padding: 10px 20px;
     }
 
     nav {
@@ -74,11 +74,11 @@ nav {
     }
 
     .logo1 {
-        width: 80px;
+        width: 60px;
     }
 
     .logo2 {
-        width: 120px;
+        width: 100px;
     }
 
     .menu-toggle {
@@ -124,15 +124,21 @@ nav {
 /* ================== FOOTER ================== */
 footer {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #ffffff;
     color: #04293B;
     text-align: center;
+    padding: 100px 50px;
+
 }
 
 .footer-content {
     display: flex;
+    width: 100%;
+    max-width: 1400px;
     flex-direction: row;
-    padding: 100px;
     gap: 100px;
     justify-content: space-between;
 }
@@ -217,10 +223,13 @@ footer {
 
 @media (max-width: 1024px) {
 
+    footer {
+        padding: 50px 20px;
+    }
+
     .footer-content {
         flex-direction: column;
         gap: 20px;
-        padding: 50px;
     }
 
     .footer-item {

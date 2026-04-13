@@ -1,17 +1,23 @@
 /* ================== HERO SECTION ================== */
 
-.hero {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/hero-bg.jpeg');
+.hero-wrapper {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../images/hero-bg.jpeg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    color: white;
-    text-align: center;
-    padding: 100px 100px 150px 100px;
+
+    padding: 100px 50px 150px 50px;
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+
+.hero {
+    display: flex;
+    flex-direction: row;
+    color: white;
+    width: 100%;
+    max-width: 1400px;
 }
 
 .hero img {
@@ -57,6 +63,13 @@
 }
 
 @media (max-width: 1024px) {
+    .hero-wrapper {
+        padding: 5px 20px 50px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .hero {
         flex-direction: column;
         padding: 100px 20px 50px 20px;
@@ -97,12 +110,19 @@
 /* ================== END HERO SECTION ================== */
 
 /* ================== MAIN INFO SECTION ================== */
-
-.main-info {
+.main-info-wrapper {
     background-color: #04293B;
-    padding: 100px;
+    padding: 100px 50px;
     display: flex;
     justify-content: center;
+    align-items: center;
+}
+
+.main-info {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1400px;
     gap: 30px;
     flex-wrap: wrap;
 }
@@ -141,13 +161,15 @@
 }
 
 @media (max-width: 1024px) {
+    .main-info-wrapper {
+        padding: 50px 20px;
+    }
+
     .main-info {
-        background-color: #04293B;
-        padding: 50px;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         gap: 30px;
-        flex-wrap: wrap;
     }
 
     .info-card {
@@ -181,13 +203,21 @@
 /* ================== END INFO SECTION ================== */
 
 /* ================== VISI SECTION ================== */
+.visi-wrapper {
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 50px;
+
+}
 
 .visi {
     display: flex;
-    gap: 50px;
-    padding: 100px;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    background-color: #f9f9f9;
+    gap: 50px;
 }
 
 .visi-content {
@@ -238,9 +268,12 @@
 }
 
 @media (max-width: 1024px) {
+    .visi-wrapper {
+        padding: 50px 20px;
+    }
+
     .visi {
         flex-direction: column;
-        padding: 50px;
         gap: 30px;
     }
 
@@ -297,14 +330,14 @@
 .misi-text h2 {
     font-size: 30px;
     color: #ffffff;
-    margin: 0px 100px;
+    margin: 0px 50px;
     line-height: 1.5;
 }
 
 .misi-text p {
     font-size: 16px;
     color: #ffffff;
-    margin: 0px 100px;
+    margin: 0px 50px;
     line-height: 2;
 }
 
@@ -543,7 +576,7 @@
 .events {
     display: flex;
     flex-direction: column;
-    padding: 100px;
+    padding: 100px 50px;
     background-color: #04293B;
     text-align: center;
 }
@@ -706,11 +739,20 @@
 /* ================== END ACARA SECTION ================== */
 
 /* ================== EKATALOG SECTION ================== */
+.ekatalog-home-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 50px;
+background-color: #f9f9f9;
+}
+
 .ekatalog-home {
+    width: 100%;
+    max-width: 1400px;
     display: flex;
     flex-direction: column;
-    padding: 100px;
-    background-color: #f9f9f9;
+    
     text-align: center;
 }
 
@@ -723,7 +765,7 @@
 
 .e-katalog-content-home {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 40px;
 }
 
@@ -758,8 +800,11 @@
 }
 
 @media (max-width: 1024px) {
+    .ekatalog-home-wrapper {
+                padding: 50px 20px;
+
+    }
     .ekatalog-home {
-        padding: 50px 30px;
         justify-content: center;
     }
 
@@ -816,11 +861,20 @@
 /* ================== END DAFTARKAN BISNIS ANDA SECTION ================== */
 
 /* ================== BERITA DOKUMENTASI SECTION ================== */
+.berita-home-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 100px 50px;
+
+}
+
 .berita-home {
     display: flex;
     flex-direction: column;
-    padding: 100px;
-    background-color: #f9f9f9;
+    width: 100%;
+    max-width: 1400px;
     text-align: center;
 }
 
@@ -954,8 +1008,11 @@
 
 
 @media (max-width: 1024px) {
+    .berita-home-wrapper {
+        padding: 50px 20px;
+    }
+    
     .berita-home {
-        padding: 50px;
         justify-content: center;
     }
 
@@ -1032,7 +1089,7 @@
 }
 
 .buku-card {
-    padding: 50px;
+    padding: 30px;
     text-align: center;
     border: 1px solid #04293B;
     border-radius: 8px;
@@ -1093,37 +1150,38 @@
     .buku-card p {
         font-size: 14px;
     }
-        /* Indicator Dots */
-        .kegiatan-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            border: 2px solid #04293B;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
 
-        .kegiatan-indicator.active {
-            background: #04293B;
-            transform: scale(1.2);
-        }
+    /* Indicator Dots */
+    .kegiatan-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px solid #04293B;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-        .kegiatan-indicator:hover {
-            background: rgba(4, 41, 59, 0.7);
-        }
+    .kegiatan-indicator.active {
+        background: #04293B;
+        transform: scale(1.2);
+    }
 
-        /* Fade Animation */
-        .events-content {
-            transition: opacity 0.5s ease-in-out;
-        }
+    .kegiatan-indicator:hover {
+        background: rgba(4, 41, 59, 0.7);
+    }
 
-        .events-content.fade-out {
-            opacity: 0;
-        }
+    /* Fade Animation */
+    .events-content {
+        transition: opacity 0.5s ease-in-out;
+    }
 
-        .events-content.fade-in {
-            opacity: 1;
-        }
-        
+    .events-content.fade-out {
+        opacity: 0;
+    }
+
+    .events-content.fade-in {
+        opacity: 1;
+    }
+
 }
