@@ -8,7 +8,8 @@ const user = computed(() => page.props.auth.user);
 
 defineProps({
     role: String,
-    stats: Object
+    stats: Object,
+    recentVerified: Array
 });
 </script>
 
@@ -55,6 +56,37 @@ defineProps({
                         <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Active Companies</p>
                         <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats?.companies || 0 }}</p>
                         <p class="text-xs text-blue-600 mt-2 font-medium">Hiring partners</p>
+                    </div>
+                </div>
+
+                <!-- Recent Verified List -->
+                <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800">✅ Alumni Terverifikasi (Terbaru)</h3>
+                        <p class="text-sm text-gray-500 mt-1">Daftar alumni yang datanya sudah tervalidasi dan siap untuk direkrut.</p>
+                    </div>
+                    <div class="p-0">
+                        <div v-if="!recentVerified?.length" class="p-8 text-center text-gray-500 text-sm">
+                            Belum ada alumni yang terverifikasi saat ini.
+                        </div>
+                        <ul v-else class="divide-y divide-gray-100">
+                            <li v-for="profile in recentVerified" :key="profile.id" class="p-4 sm:px-6 hover:bg-gray-50 transition-colors flex items-center justify-between group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">
+                                        {{ profile.full_name ? profile.full_name.charAt(0) : '?' }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-900">{{ profile.full_name }} <span class="text-xs font-normal text-gray-400 ml-1">({{ profile.alumni_code }})</span></p>
+                                        <p class="text-xs text-gray-500">{{ profile.rank }} &bull; {{ profile.region }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Verified
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

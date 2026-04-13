@@ -14,12 +14,16 @@ const showSlideOver = ref(false);
 const reviewProfile = (profile) => {
     selectedProfile.value = profile;
     showSlideOver.value = true;
-    
-    // Mark as reviewing if it was pending
-    if (profile.verification_status === 'pending') {
-        router.post(route('admin.verifications.in_review', profile.id), {}, {
+};
+
+const markAsReviewing = () => {
+    if (selectedProfile.value && selectedProfile.value.verification_status === 'pending') {
+        router.post(route('admin.verifications.in_review', selectedProfile.value.id), {}, {
             preserveScroll: true,
-            preserveState: true,
+            onSuccess: () => {
+                // Update local state to reflect UI change
+                selectedProfile.value.verification_status = 'in_review';
+            }
         });
     }
 };
@@ -204,6 +208,17 @@ const approve = () => {
                     <p class="text-xs text-gray-500 mb-6">Pastikan seluruh data dan dokumen otentik sebelum Anda memberikan Approve. Data terverifikasi akan terlihat oleh pihak Perusahaan.</p>
                     
                     <div class="flex flex-col gap-3">
+                        <button 
+                            v-if="selectedProfile.verification_status === 'pending'" 
+                            @click="markAsReviewing" 
+                            class="w-full flex items-center justify-center px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-sm transition mb-2"
+                        >
+                            👀 Tandai "Sedang di-Review"
+                        </button>
+                        <div v-else-if="selectedProfile.verification_status === 'in_review'" class="border border-indigo-200 bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg text-center font-bold mb-2">
+                            ✓ Status diubah ke "Under Review"
+                        </div>
+
                         <button @click="approve" class="w-full flex items-center justify-center px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             Approve Profile

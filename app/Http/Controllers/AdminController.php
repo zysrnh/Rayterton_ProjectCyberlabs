@@ -19,13 +19,19 @@ class AdminController extends Controller
         $verifiedCount = \App\Models\AlumniProfile::where('verification_status', 'verified')->count();
         $companyCount = User::where('role_id', 'company')->count();
 
+        $recentVerified = \App\Models\AlumniProfile::where('verification_status', 'verified')
+            ->orderBy('verified_at', 'desc')
+            ->take(5)
+            ->get();
+
         return Inertia::render('Admin/Dashboard', [
             'role' => $request->user()->role_id,
             'stats' => [
                 'pending' => $pendingCount,
                 'verified' => $verifiedCount,
                 'companies' => $companyCount
-            ]
+            ],
+            'recentVerified' => $recentVerified
         ]);
     }
 
