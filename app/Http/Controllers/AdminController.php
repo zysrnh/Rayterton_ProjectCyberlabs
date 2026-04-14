@@ -44,8 +44,7 @@ class AdminController extends Controller
         }
 
         $allProfiles = \Illuminate\Support\Facades\Cache::remember('alumni_registry_queue', 3600, function () {
-            return \App\Models\AlumniProfile::whereNot('verification_status', 'unverified')
-                ->with(['educations', 'certificates', 'seaServices'])
+            return \App\Models\AlumniProfile::with(['educations', 'certificates', 'seaServices'])
                 ->orderBy('updated_at', 'desc')
                 ->get();
         });
@@ -126,5 +125,24 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back();
+    }
+    public function residents(Request $request)
+    {
+        if (!in_array($request->user()->role_id, ['super_admin', 'verifier'])) {
+            abort(403);
+        }
+
+        $query = User::whereNotIn('role_id', ['super_admin', 'verifier'])
+            ->with(['alumniProfile'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->search) {
+            $query->where('email', 'like', '%' . $request->search . '%');
+        }
+
+        return Inertia::render('Admin/RegistryResidents', [
+            'residents' => $query->get(),
+            'filters' => $request->only(['search'])
+        ]);
     }
 }

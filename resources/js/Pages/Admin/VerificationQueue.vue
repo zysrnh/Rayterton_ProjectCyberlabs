@@ -80,9 +80,11 @@ const approve = () => {
 
 const stats = computed(() => {
     return {
+        unverified: props.queue.filter(p => p.verification_status === 'unverified').length,
         pending: props.queue.filter(p => p.verification_status === 'pending').length,
         in_review: props.queue.filter(p => p.verification_status === 'in_review').length,
         verified: props.queue.filter(p => p.verification_status === 'verified').length,
+        rejected: props.queue.filter(p => p.verification_status === 'rejected').length,
     };
 });
 
@@ -130,6 +132,9 @@ const isImage = (url) => {
                          <button @click="statusFilter = 'all'" :class="['px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2', statusFilter === 'all' ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-100' : 'bg-white border-transparent text-gray-400 hover:border-gray-200']">
                             All Registry ({{ props.queue?.length || 0 }})
                         </button>
+                        <button @click="statusFilter = 'unverified'" :class="['px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2', statusFilter === 'unverified' ? 'bg-gray-800 border-gray-800 text-white shadow-xl shadow-gray-200' : 'bg-white border-transparent text-gray-400 hover:border-gray-200']">
+                            Dormant Assets ({{ stats.unverified }})
+                        </button>
                         <button @click="statusFilter = 'pending'" :class="['px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2', statusFilter === 'pending' ? 'bg-amber-500 border-amber-500 text-white shadow-xl shadow-amber-100' : 'bg-white border-transparent text-gray-400 hover:border-gray-200']">
                             Queue: Pending ({{ stats.pending }})
                         </button>
@@ -138,6 +143,9 @@ const isImage = (url) => {
                         </button>
                         <button @click="statusFilter = 'verified'" :class="['px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2', statusFilter === 'verified' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl shadow-emerald-100' : 'bg-white border-transparent text-gray-400 hover:border-gray-200']">
                             Verified Ledger ({{ stats.verified }})
+                        </button>
+                        <button @click="statusFilter = 'rejected'" :class="['px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2', statusFilter === 'rejected' ? 'bg-rose-600 border-rose-600 text-white shadow-xl shadow-rose-100' : 'bg-white border-transparent text-gray-400 hover:border-gray-200']">
+                            Security Rejections ({{ stats.rejected }})
                         </button>
                     </div>
 
@@ -235,7 +243,11 @@ const isImage = (url) => {
                                         </div>
                                     </td>
                                     <td class="px-12 py-12">
-                                         <div v-if="profile.verification_status === 'pending'" class="flex items-center gap-3 bg-white border-2 border-amber-100 text-amber-600 px-6 py-3 rounded-2xl w-fit shadow-xl shadow-amber-50">
+                                         <div v-if="profile.verification_status === 'unverified'" class="flex items-center gap-3 bg-gray-100 text-gray-500 px-6 py-3 rounded-2xl w-fit">
+                                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                            <span class="text-[10px] font-black uppercase tracking-[0.2em] italic">Incomplete / Dormant</span>
+                                        </div>
+                                         <div v-else-if="profile.verification_status === 'pending'" class="flex items-center gap-3 bg-white border-2 border-amber-100 text-amber-600 px-6 py-3 rounded-2xl w-fit shadow-xl shadow-amber-50">
                                             <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                                             <span class="text-[10px] font-black uppercase tracking-[0.2em] italic">Awaiting Pivot</span>
                                         </div>
@@ -246,6 +258,10 @@ const isImage = (url) => {
                                         <div v-else-if="profile.verification_status === 'verified'" class="flex items-center gap-3 bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl w-fit border border-emerald-100">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                                             <span class="text-[10px] font-black uppercase tracking-[0.2em]">Verified Record</span>
+                                        </div>
+                                        <div v-else-if="profile.verification_status === 'rejected'" class="flex items-center gap-3 bg-rose-50 text-rose-700 px-6 py-3 rounded-2xl w-fit border border-rose-100 shadow-xl shadow-rose-50">
+                                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                            <span class="text-[10px] font-black uppercase tracking-[0.2em] italic">Registry Rejected</span>
                                         </div>
                                     </td>
                                     <td class="px-12 py-12 text-right pr-16">

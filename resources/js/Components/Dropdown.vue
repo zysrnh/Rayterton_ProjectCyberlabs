@@ -46,18 +46,23 @@ const alignmentClasses = computed(() => {
 });
 
 const open = ref(false);
+
+const toggleDropdown = () => {
+    open.value = !open.value;
+};
+
 </script>
 
 <template>
     <div class="relative">
-        <div @click="open = !open">
+        <div @click="toggleDropdown">
             <slot name="trigger" />
         </div>
 
-        <!-- Full Screen Dropdown Overlay -->
+        <!-- Full Screen Dropdown Overlay (Click outside to close) -->
         <div
-            v-show="open"
-            class="fixed inset-0 z-40 bg-black/5 backdrop-blur-[1px]"
+            v-if="open"
+            class="fixed inset-0 z-40 bg-black/5"
             @click="open = false"
         ></div>
 
@@ -70,14 +75,13 @@ const open = ref(false);
             leave-to-class="opacity-0 scale-95 -translate-y-1 blur-sm"
         >
             <div
-                v-show="open"
+                v-if="open"
                 class="absolute z-50 mt-4"
                 :class="[widthClass, alignmentClasses]"
-                style="display: none"
                 @click="open = false"
             >
                 <div
-                    class="rounded-md ring-1 ring-black ring-opacity-5"
+                    class="rounded-[2rem] ring-1 ring-black ring-opacity-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden"
                     :class="contentClasses"
                 >
                     <slot name="content" />

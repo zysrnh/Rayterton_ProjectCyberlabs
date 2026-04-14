@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
     
     Route::get('/admin/users', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/residents', [\App\Http\Controllers\AdminController::class, 'residents'])->name('admin.residents');
     Route::post('/admin/users', [\App\Http\Controllers\AdminController::class, 'store'])->name('admin.users.store');
 
     Route::get('/admin/verifications', [\App\Http\Controllers\AdminController::class, 'queue'])->name('admin.verifications.queue');
