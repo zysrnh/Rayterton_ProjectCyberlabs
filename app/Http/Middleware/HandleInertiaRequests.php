@@ -39,8 +39,15 @@ class HandleInertiaRequests extends Middleware
                     ? \App\Models\AlumniProfile::where('verification_status', 'pending')->count() 
                     : 0,
                 'latest_registrations' => ($request->user() && in_array($request->user()->role_id, ['super_admin', 'verifier']))
-                    ? \App\Models\AlumniProfile::where('verification_status', 'pending')->orderBy('created_at', 'desc')->take(3)->get()
+                    ? \App\Models\AlumniProfile::where('verification_status', 'pending')->orderBy('created_at', 'desc')->take(5)->get()
                     : [],
+                'system_announcements' => [
+                    [
+                        'title' => 'Rayterton Protocol Update',
+                        'message' => 'New institutional verification standards are now active.',
+                        'date' => now()->format('Y-m-d')
+                    ]
+                ]
             ],
         ];
     }
