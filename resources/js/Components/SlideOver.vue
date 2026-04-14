@@ -53,7 +53,7 @@ watch(
                         leave-from-class="opacity-100"
                         leave-to-class="opacity-0"
                     >
-                        <div v-show="show" class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="close"></div>
+                        <div v-show="show" class="absolute inset-0 bg-gray-900/60 backdrop-blur-md transition-opacity" @click="close"></div>
                     </transition>
 
                     <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
@@ -66,31 +66,25 @@ watch(
                             leave-from-class="translate-x-0"
                             leave-to-class="translate-x-full"
                         >
-                            <div v-show="show" class="pointer-events-auto relative w-screen max-w-md">
+                            <div v-show="show" class="pointer-events-auto relative w-screen max-w-4xl">
                                 <!-- Close button corner -->
-                                <transition
-                                    enter-active-class="ease-in-out duration-500"
-                                    enter-from-class="opacity-0"
-                                    enter-to-class="opacity-100"
-                                    leave-active-class="ease-in-out duration-500"
-                                    leave-from-class="opacity-100"
-                                    leave-to-class="opacity-0"
-                                >
-                                    <div v-show="show" class="absolute left-0 top-0 -ml-8 flex pr-2 pt-4 sm:-ml-10 sm:pr-4">
-                                        <button @click="close" type="button" class="rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
-                                            <span class="sr-only">Close panel</span>
-                                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </transition>
+                                <div v-show="show" class="absolute left-0 top-0 -ml-16 flex pr-10 pt-10 sm:-ml-20">
+                                    <button @click="close" type="button" class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-xl text-white hover:bg-rose-500 hover:scale-110 transition-all shadow-2xl flex items-center justify-center border border-white/10 group">
+                                        <svg class="h-8 w-8 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
 
-                                <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                                    <div class="px-4 py-6 sm:px-6 bg-indigo-600">
-                                        <h2 class="text-xl font-bold leading-6 text-white" id="slide-over-title">{{ title }}</h2>
+                                <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
+                                    <div class="px-12 py-12 bg-indigo-600 shadow-2xl relative overflow-hidden">
+                                        <div class="absolute -right-10 -top-10 opacity-10">
+                                             <svg class="w-48 h-48" fill="white" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                        </div>
+                                        <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white relative z-10" id="slide-over-title">{{ title }}</h2>
+                                        <p class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em] mt-2 relative z-10">Secure Verification Environment</p>
                                     </div>
-                                    <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                                    <div class="relative flex-1">
                                         <!-- Slot for content -->
                                         <slot />
                                     </div>
