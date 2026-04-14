@@ -6,7 +6,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
-    queue: Array
+    queue: Array 
 });
 
 const selectedProfile = ref(null);
