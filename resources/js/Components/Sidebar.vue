@@ -14,10 +14,7 @@ defineEmits(['close']);
         <!-- Sidebar Header / Logo -->
         <div class="flex items-center justify-center h-24 bg-[#0F172A] border-b border-white/5 px-8 shrink-0">
             <Link :href="route('dashboard')" class="flex items-center gap-4 w-full">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <span class="text-white font-black text-2xl tracking-tighter uppercase italic">Rayterton</span>
+                <img src="/images/Logo/rayterton-apps-software-logo.png" class="h-14 w-auto object-contain" alt="Rayterton Logo" />
             </Link>
         </div>
 

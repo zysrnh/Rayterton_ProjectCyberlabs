@@ -34,6 +34,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'notifications' => [
+                'pending_count' => ($request->user() && in_array($request->user()->role_id, ['super_admin', 'verifier'])) 
+                    ? \App\Models\AlumniProfile::where('verification_status', 'pending')->count() 
+                    : 0,
+            ],
         ];
     }
 }
