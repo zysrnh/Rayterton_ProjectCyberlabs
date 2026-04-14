@@ -304,9 +304,36 @@ const isImage = (url) => {
                          </div>
                     </div>
 
+                    <!-- Academic Section -->
+                    <div>
+                         <h3 class="text-[11px] font-black text-gray-300 uppercase tracking-[0.4em] mb-10 italic border-b border-gray-50 pb-4">02 // Academic Intelligence</h3>
+                         <div v-if="selectedProfile.educations?.length" class="space-y-6">
+                              <div v-for="edu in selectedProfile.educations" :key="edu.id" class="p-8 bg-white border border-gray-50 shadow-xl shadow-gray-100 rounded-[3rem] group hover:border-indigo-400 transition-all flex items-center justify-between">
+                                  <div class="flex items-center gap-8">
+                                      <div class="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
+                                          <svg class="w-8 h-8 font-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                                      </div>
+                                      <div>
+                                          <p class="text-xs font-black text-gray-900 uppercase italic">{{ edu.institution_name }}</p>
+                                          <div class="flex items-center gap-4 mt-2">
+                                              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ edu.degree_program }}</p>
+                                              <span class="text-[10px] font-mono font-bold text-indigo-400">Class of {{ edu.graduation_year }}</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <button v-if="edu.diploma_file_url" @click="previewFile(edu.diploma_file_url)" class="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-2xl active:scale-90 flex-shrink-0">
+                                      <svg class="w-6 h-6 shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                  </button>
+                              </div>
+                         </div>
+                         <div v-else class="p-10 border-2 border-dashed border-gray-100 rounded-[3rem] text-center">
+                             <p class="text-[10px] font-black text-gray-300 uppercase italic">No Academic Records Filed</p>
+                         </div>
+                    </div>
+
                     <!-- Academic / Certs Section -->
                     <div>
-                         <h3 class="text-[11px] font-black text-gray-300 uppercase tracking-[0.4em] mb-10 italic border-b border-gray-50 pb-4">02 // Evidence Collection</h3>
+                         <h3 class="text-[11px] font-black text-gray-300 uppercase tracking-[0.4em] mb-10 italic border-b border-gray-50 pb-4">03 // Evidence Collection</h3>
                          <div class="space-y-10">
                              <!-- Certificates (Vault) -->
                              <div v-if="selectedProfile.certificates?.length" class="space-y-6">
