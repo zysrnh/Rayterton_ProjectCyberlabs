@@ -41,6 +41,7 @@ class AlumniDataController extends Controller
         $profile = $request->user()->alumniProfile;
         
         $request->validate([
+            'cert_type' => 'required|string|in:BST,COP,COC,OTHER',
             'cert_name' => 'required|string|max:255',
             'cert_number' => 'required|string|max:255|unique:certificates,cert_number',
             'issuing_body' => 'required|string|max:255',
@@ -55,6 +56,7 @@ class AlumniDataController extends Controller
         }
 
         $profile->certificates()->create([
+            'cert_type' => $request->cert_type,
             'cert_name' => $request->cert_name,
             'cert_number' => $request->cert_number,
             'issuing_body' => $request->issuing_body,

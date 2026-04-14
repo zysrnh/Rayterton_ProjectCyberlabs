@@ -58,6 +58,7 @@ const indonesianRegions = [
 const showEducationModal = ref(false);
 const showCertificateModal = ref(false);
 const showSeaServiceModal = ref(false);
+const showCvPreview = ref(false);
 
 const eduForm = useForm({
     institution_name: '',
@@ -67,6 +68,7 @@ const eduForm = useForm({
 });
 
 const certForm = useForm({
+    cert_type: 'BST',
     cert_name: '',
     cert_number: '',
     issuing_body: '',
@@ -119,6 +121,25 @@ const submitSea = () => {
         }
     });
 };
+
+const getCertIcon = (type) => {
+    switch(type) {
+        case 'BST': return '⚓';
+        case 'COP': return '📜';
+        case 'COC': return '🎫';
+        default: return '📄';
+    }
+};
+
+const groupedCerts = computed(() => {
+    if (!props.profile?.certificates) return {};
+    return props.profile.certificates.reduce((acc, cert) => {
+        if (!acc[cert.cert_type]) acc[cert.cert_type] = [];
+        acc[cert.cert_type].push(cert);
+        return acc;
+    }, {});
+});
+
 </script>
 
 <template>
@@ -134,8 +155,16 @@ const submitSea = () => {
                         <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Living Professional Identity</h1>
                         <p class="text-sm font-medium text-gray-500 mt-1">Verified records that act as an institutional guarantee of candidate readiness.</p>
                     </div>
-                    <div v-if="isVerified" class="flex items-center gap-3">
+                    <div class="flex items-center gap-3">
+                         <button 
+                            @click="showCvPreview = true"
+                            class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-xl hover:bg-black transition-all flex items-center gap-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View Maritime CV
+                        </button>
                         <button 
+                            v-if="isVerified"
                             @click="toggleAvailability"
                             :class="[
                                 'px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all border',
@@ -223,8 +252,8 @@ const submitSea = () => {
                             
                             <div class="mt-8 space-y-4">
                                 <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest p-3 bg-white/5 rounded-xl border border-white/10">
-                                    <span>Verified Profile</span>
-                                    <span :class="isVerified ? 'text-emerald-400' : 'text-gray-500'">{{ isVerified ? 'ON' : 'OFF' }}</span>
+                                    <span>Verified Status</span>
+                                    <span :class="isVerified ? 'text-emerald-400' : 'text-gray-500'">{{ props.profile?.verification_status.toUpperCase() }}</span>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +281,7 @@ const submitSea = () => {
                     <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
                         <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">1. Master Profile Setup</h3>
+                                <h3 class="text-lg font-bold text-gray-900 text-indigo-600">1. Master Profile Setup</h3>
                                 <p class="text-xs font-medium text-gray-500 mt-0.5">Define your professional identity and working preferences.</p>
                             </div>
                         </div>
@@ -324,7 +353,7 @@ const submitSea = () => {
                         <!-- Education -->
                         <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
                             <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Academic Records</h3>
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] text-indigo-600">Academic Records</h3>
                                 <button @click="showEducationModal = true" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                                 </button>
@@ -335,30 +364,41 @@ const submitSea = () => {
                                 </div>
                                 <div v-else class="space-y-4">
                                     <div v-for="edu in profile.educations" :key="edu.id" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-indigo-300 transition-colors">
-                                        <p class="text-xs font-black text-gray-900 truncate">{{ edu.institution_name }}</p>
+                                        <p class="text-xs font-black text-gray-900 truncate uppercase">{{ edu.institution_name }}</p>
                                         <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase">{{ edu.degree_program }} &bull; {{ edu.graduation_year }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Certificates -->
+                        <!-- Document Vault -->
                         <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
-                            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Sea Certifications</h3>
+                            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-amber-50/20">
+                                <div>
+                                    <h3 class="text-xs font-black text-amber-600 uppercase tracking-[0.2em]">Document Vault</h3>
+                                    <p class="text-[8px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">BST / COP / COC</p>
+                                </div>
                                 <button @click="showCertificateModal = true" class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                                 </button>
                             </div>
                             <div class="p-6 flex-grow">
                                 <div v-if="!profile?.certificates?.length" class="h-32 flex flex-col items-center justify-center text-center">
-                                    <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">No Records Found</p>
+                                    <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Vault is Empty</p>
                                 </div>
                                 <div v-else class="space-y-4">
-                                    <div v-for="cert in profile.certificates" :key="cert.id" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-amber-300 transition-colors">
-                                        <p class="text-xs font-black text-gray-900 truncate">{{ cert.cert_name }}</p>
-                                        <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-widest">No: {{ cert.cert_number }}</p>
-                                    </div>
+                                    <template v-for="(certs, type) in groupedCerts" :key="type">
+                                        <p class="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 px-1">{{ type }} Collections</p>
+                                        <div v-for="cert in certs" :key="cert.id" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-amber-300 transition-colors mb-3">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-lg">{{ getCertIcon(cert.cert_type) }}</span>
+                                                <div class="flex-grow min-w-0">
+                                                    <p class="text-xs font-black text-gray-900 truncate uppercase">{{ cert.cert_name }}</p>
+                                                    <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-widest">{{ cert.cert_number }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -366,7 +406,7 @@ const submitSea = () => {
                         <!-- Sea Service -->
                         <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
                             <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Sea Experience</h3>
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] text-emerald-600">Sea Experience</h3>
                                 <button @click="showSeaServiceModal = true" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                                 </button>
@@ -377,7 +417,7 @@ const submitSea = () => {
                                 </div>
                                 <div v-else class="space-y-4">
                                     <div v-for="sea in profile.sea_services" :key="sea.id" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-emerald-300 transition-colors">
-                                        <p class="text-xs font-black text-gray-900 truncate">{{ sea.vessel_name }}</p>
+                                        <p class="text-xs font-black text-gray-900 truncate uppercase">{{ sea.vessel_name }}</p>
                                         <p class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-widest">{{ sea.company_name }} &bull; {{ sea.duration_months }} Months</p>
                                     </div>
                                 </div>
@@ -387,141 +427,271 @@ const submitSea = () => {
                     </div>
 
                     <!-- Final Submission -->
-                    <div v-if="completeness >= 20" class="bg-indigo-600 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-indigo-100 text-white">
-                        <div class="max-w-2xl text-center md:text-left">
-                            <h3 class="text-2xl font-black uppercase tracking-tight">Institutional Gaurantee Submission</h3>
-                            <p class="text-indigo-100 mt-2 font-medium opacity-80 leading-relaxed">By requesting verification, you authorize our institutional teams to digitally cross-reference your submitted academic and maritime records with national registries.</p>
+                    <div v-if="completeness >= 20" class="bg-gray-900 rounded-[3rem] p-12 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl text-white relative overflow-hidden">
+                        <div class="absolute -right-20 -top-20 opacity-10">
+                            <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 12.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        </div>
+                        <div class="max-w-2xl text-center md:text-left z-10">
+                            <h3 class="text-3xl font-black uppercase tracking-tight italic">Registry Guard Protocol</h3>
+                            <p class="text-gray-400 mt-4 font-medium leading-relaxed uppercase text-xs tracking-widest">Initiate institutional cross-reference for national maritime records. Verification issues an immutable digital readiness badge.</p>
                         </div>
                         <button 
                             @click="submitVerification"
                             :disabled="completeness < 100 || profile?.verification_status !== 'unverified'"
-                            class="px-10 py-5 bg-white text-indigo-600 font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+                            class="px-12 py-6 bg-white text-gray-900 font-black text-xs uppercase tracking-[0.3em] rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-30 z-10"
                         >
-                            {{ completeness < 100 ? (100 - completeness) + '% Required' : 'Request Registry Guard' }}
+                            {{ completeness < 100 ? (100 - completeness) + '% To Unlock' : 'Request Verification' }}
                         </button>
                     </div>
-
                 </div>
 
             </div>
         </div>
 
-        <!-- Modals (Refined Style) -->
+        <!-- MODALS -->
+
+        <!-- Education Modal -->
         <Modal :show="showEducationModal" @close="showEducationModal = false">
             <div class="p-8">
-                <h2 class="text-2xl font-black text-gray-900">Add Academic Evidence</h2>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 border-b border-gray-100 pb-6 mb-8">Verification against University/Training registry.</p>
+                <h3 class="text-lg font-black text-gray-900 uppercase tracking-widest mb-6">Add Academic Evidence</h3>
                 <form @submit.prevent="submitEdu" class="space-y-6">
                     <div>
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">School / University / Training Center</label>
-                        <input v-model="eduForm.institution_name" type="text" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Institution Name</label>
+                        <input v-model="eduForm.institution_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                     </div>
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Major / Degree</label>
-                            <input v-model="eduForm.degree_program" type="text" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Program / Major</label>
+                            <input v-model="eduForm.degree_program" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Year Graduated</label>
-                            <input v-model="eduForm.graduation_year" type="number" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Graduation Year</label>
+                            <input v-model="eduForm.graduation_year" type="number" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                     </div>
-                    <div class="bg-gray-50 p-6 rounded-2xl border border-dashed border-gray-200">
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Diploma Document (Evidence)</label>
-                        <input @input="eduForm.diploma_file = $event.target.files[0]" type="file" class="w-full text-xs" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Digital Diploma (PDF/Image)</label>
+                        <input @input="eduForm.diploma_file = $event.target.files[0]" type="file" class="w-full text-xs font-bold text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
                     </div>
-                    <div class="mt-10 flex justify-end gap-4">
-                        <button type="button" @click="showEducationModal = false" class="px-6 py-3 text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>
+                    <div class="flex justify-end gap-3 mt-8">
+                        <button type="button" @click="showEducationModal = false" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Cancel</button>
                         <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100">Store Evidence</button>
                     </div>
                 </form>
             </div>
         </Modal>
 
-        <!-- Certificate/Sea Service Modals similar structure... -->
+        <!-- Certificate Modal -->
         <Modal :show="showCertificateModal" @close="showCertificateModal = false">
             <div class="p-8">
-                <h2 class="text-2xl font-black text-gray-900">Add Maritime Certification</h2>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 border-b border-gray-100 pb-6 mb-8">Registry cross-check for STCW/COP certificates.</p>
+                <h3 class="text-lg font-black text-gray-900 uppercase tracking-widest mb-6">Vault Deposit: New Certificate</h3>
                 <form @submit.prevent="submitCert" class="space-y-6">
                     <div>
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Certificate Full Name</label>
-                        <input v-model="certForm.cert_name" type="text" placeholder="e.g. Basic Safety Training" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Certificate Type</label>
+                        <select v-model="certForm.cert_type" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4">
+                            <option value="BST">BST (Basic Safety Training)</option>
+                            <option value="COP">COP (Certificate of Proficiency)</option>
+                            <option value="COC">COC (Certificate of Competency)</option>
+                            <option value="OTHER">Other Credentials</option>
+                        </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Certificate Name</label>
+                        <input v-model="certForm.cert_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Serial Number</label>
-                            <input v-model="certForm.cert_number" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Certificate No.</label>
+                            <input v-model="certForm.cert_number" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Issuing Body</label>
-                            <input v-model="certForm.issuing_body" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Issuing Authority</label>
+                            <input v-model="certForm.issuing_body" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Issued On</label>
-                            <input v-model="certForm.issued_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Date Issued</label>
+                            <input v-model="certForm.issued_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Expiry Date</label>
-                            <input v-model="certForm.expiry_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Expiry Date</label>
+                            <input v-model="certForm.expiry_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" />
                         </div>
                     </div>
-                    <div class="bg-gray-50 p-6 rounded-2xl border border-dashed border-gray-200">
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Certification Scan (Evidence)</label>
-                        <input @input="certForm.cert_file = $event.target.files[0]" type="file" class="w-full text-xs" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Digital Copy</label>
+                        <input @input="certForm.cert_file = $event.target.files[0]" type="file" class="w-full text-xs font-bold text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
                     </div>
-                    <div class="mt-10 flex justify-end gap-4">
-                        <button type="button" @click="showCertificateModal = false" class="px-6 py-3 text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>
-                        <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100">Store Evidence</button>
+                    <div class="flex justify-end gap-3 mt-8">
+                        <button type="button" @click="showCertificateModal = false" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Cancel</button>
+                        <button type="submit" class="px-8 py-3 bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-amber-100">Lock in Vault</button>
                     </div>
                 </form>
             </div>
         </Modal>
 
+        <!-- Sea Service Modal -->
         <Modal :show="showSeaServiceModal" @close="showSeaServiceModal = false">
             <div class="p-8">
-                <h2 class="text-2xl font-black text-gray-900">Add Sea Experience</h2>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 border-b border-gray-100 pb-6 mb-8">Verification via Sign on/off Records.</p>
-                <form @submit.prevent="submitSea" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 class="text-lg font-black text-gray-900 uppercase tracking-widest mb-6">Log Sea Experience</h3>
+                <form @submit.prevent="submitSea" class="space-y-4 overflow-y-auto max-h-[70vh] px-2">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Vessel Name</label>
-                            <input v-model="seaForm.vessel_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Vessel Name</label>
+                            <input v-model="seaForm.vessel_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Duration (Months)</label>
-                            <input v-model="seaForm.duration_months" type="number" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Company / Principal</label>
-                        <input v-model="seaForm.company_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold px-4 py-3" required />
-                    </div>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Rank at the time</label>
-                            <input v-model="seaForm.rank_at_time" type="text" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Vessel Type</label>
-                            <input v-model="seaForm.vessel_type" type="text" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Vessel Type</label>
+                            <input v-model="seaForm.vessel_type" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Route (Trade Area)</label>
-                        <input v-model="seaForm.route" type="text" placeholder="e.g. World Wide / Domestic" class="w-full border-gray-200 focus:ring-0 focus:border-indigo-600 rounded-xl text-sm font-bold px-4 py-3" required />
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Company Name</label>
+                        <input v-model="seaForm.company_name" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
                     </div>
-                    <div class="bg-gray-50 p-6 rounded-2xl border border-dashed border-gray-200">
-                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Contract / Sign On-Off Scan</label>
-                        <input @input="seaForm.contract_file = $event.target.files[0]" type="file" class="w-full text-xs" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Rank at Time</label>
+                            <input v-model="seaForm.rank_at_time" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Service Route</label>
+                            <input v-model="seaForm.route" type="text" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" placeholder="e.g. Domestic / International" />
+                        </div>
                     </div>
-                    <div class="mt-10 flex justify-end gap-4">
-                        <button type="button" @click="showSeaServiceModal = false" class="px-6 py-3 text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>
-                        <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100">Store Evidence</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Sign On Date</label>
+                            <input v-model="seaForm.start_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" required />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Sign Off Date</label>
+                            <input v-model="seaForm.end_date" type="date" class="w-full border-gray-200 rounded-xl text-sm font-bold p-4" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Contract/Sea Service Proof</label>
+                        <input @input="seaForm.contract_file = $event.target.files[0]" type="file" class="w-full text-xs font-bold text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+                    </div>
+                    <div class="flex justify-end gap-3 mt-8">
+                        <button type="button" @click="showSeaServiceModal = false" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Cancel</button>
+                        <button type="submit" class="px-8 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-100">Log Service</button>
                     </div>
                 </form>
+            </div>
+        </Modal>
+
+        <!-- CV Preview Modal -->
+        <Modal :show="showCvPreview" @close="showCvPreview = false" maxWidth="4xl">
+            <div class="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                 <div class="px-10 py-8 border-b border-gray-100 flex items-center justify-between bg-gray-900 text-white">
+                    <div>
+                         <h3 class="text-xl font-black uppercase tracking-[0.2em] italic">Digital Maritime CV</h3>
+                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Institutional Verified Record &bull; {{ props.profile?.alumni_code }}</p>
+                    </div>
+                    <button @click="showCvPreview = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-gray-900 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="p-12 overflow-y-auto bg-white flex-grow space-y-12">
+                     <!-- Header -->
+                     <div class="flex items-start gap-10 border-b border-gray-100 pb-12">
+                        <div class="w-40 h-52 rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-50 flex-shrink-0">
+                             <img v-if="props.profile?.avatar_url" :src="`/storage/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
+                             <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center font-black text-4xl text-gray-300">?</div>
+                        </div>
+                        <div class="flex-grow pt-4">
+                             <h4 class="text-5xl font-black text-gray-900 leading-tight">{{ props.profile?.full_name }}</h4>
+                             <p class="text-2xl font-bold text-indigo-600 mt-2 uppercase tracking-tight">{{ props.profile?.rank }}</p>
+                             
+                             <div class="grid grid-cols-2 gap-y-4 mt-8">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-20">Region</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ props.profile?.region }}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-20">Email</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ $page.props.auth.user.email }}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-20">Phone</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ props.profile?.phone }}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-20">Vessel</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ props.profile?.preferred_vessel_type }}</span>
+                                </div>
+                             </div>
+                        </div>
+                     </div>
+
+                     <!-- Sections -->
+                     <div class="grid grid-cols-2 gap-12">
+                        <!-- Left Col: Sea Service & Education -->
+                        <div class="space-y-12">
+                             <div>
+                                <h5 class="text-xs font-black text-emerald-600 flex items-center gap-2 mb-6 uppercase tracking-widest border-b border-emerald-100 pb-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                    Sea Service History
+                                </h5>
+                                <div class="space-y-6">
+                                    <div v-for="sea in profile?.sea_services" :key="sea.id" class="relative pl-6 border-l-2 border-gray-100">
+                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-emerald-500"></div>
+                                        <p class="text-sm font-black text-gray-900 uppercase">{{ sea.vessel_name }}</p>
+                                        <p class="text-[11px] font-bold text-gray-500 mt-1">{{ sea.rank_at_time }} &bull; {{ sea.duration_months }} Months</p>
+                                        <p class="text-[10px] font-medium text-gray-400 mt-0.5">{{ sea.company_name }}</p>
+                                    </div>
+                                </div>
+                             </div>
+
+                             <div>
+                                <h5 class="text-xs font-black text-indigo-600 flex items-center gap-2 mb-6 uppercase tracking-widest border-b border-indigo-100 pb-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"></path></svg>
+                                    Academic Background
+                                </h5>
+                                <div class="space-y-6">
+                                    <div v-for="edu in profile?.educations" :key="edu.id" class="relative pl-6 border-l-2 border-gray-100">
+                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-indigo-500"></div>
+                                        <p class="text-sm font-black text-gray-900 uppercase">{{ edu.institution_name }}</p>
+                                        <p class="text-[11px] font-bold text-gray-500 mt-1">{{ edu.degree_program }}</p>
+                                        <p class="text-[10px] font-medium text-gray-400 mt-0.5">Class of {{ edu.graduation_year }}</p>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- Right Col: Document Vault -->
+                        <div>
+                             <h5 class="text-xs font-black text-amber-600 flex items-center gap-2 mb-6 uppercase tracking-widest border-b border-amber-100 pb-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                Document Vault (Certificates)
+                             </h5>
+                             <div class="space-y-4">
+                                <div v-for="cert in profile?.certificates" :key="cert.id" class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-gray-900 text-white uppercase">{{ cert.cert_type }}</span>
+                                            <p class="text-xs font-black text-gray-900 uppercase truncate max-w-[150px]">{{ cert.cert_name }}</p>
+                                        </div>
+                                        <p class="text-[10px] font-mono font-bold text-gray-400 mt-1 lowercase tracking-tight">{{ cert.cert_number }}</p>
+                                    </div>
+                                    <div v-if="cert.verification_status === 'cleared'" class="text-emerald-500">
+                                        <svg class="w-5 h-5 shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+                     </div>
+                </div>
+
+                <div class="p-8 bg-gray-50 border-t border-gray-100 flex justify-between items-center anonymous-cv-footer">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Rayterton Unified Maritime Ledger &bull; Proof of Identity</p>
+                    <button @click="showCvPreview = false" class="px-10 py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">
+                        Terminate Session
+                    </button>
+                </div>
             </div>
         </Modal>
 
