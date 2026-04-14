@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/verifications/{id}/in-review', [\App\Http\Controllers\AdminController::class, 'markAsReviewing'])->name('admin.verifications.in_review');
     Route::post('/admin/verifications/{id}/approve', [\App\Http\Controllers\AdminController::class, 'approve'])->name('admin.verifications.approve');
 
-    Route::put('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');
+    Route::post('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');
     Route::post('/alumni/toggle-availability', [AlumniProfileController::class, 'toggleAvailability'])->name('alumni.toggle_availability');
     Route::post('/alumni/educations', [\App\Http\Controllers\AlumniDataController::class, 'storeEducation'])->name('alumni.educations.store');
     Route::post('/alumni/certificates', [\App\Http\Controllers\AlumniDataController::class, 'storeCertificate'])->name('alumni.certificates.store');

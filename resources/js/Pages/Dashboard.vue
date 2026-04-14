@@ -25,7 +25,6 @@ const submit = () => {
     form.post(route('alumni.master-profile.update'), {
         preserveScroll: true,
         forceFormData: true,
-        _method: 'put',
     });
 };
 
