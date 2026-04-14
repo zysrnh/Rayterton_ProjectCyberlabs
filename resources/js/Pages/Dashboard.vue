@@ -60,6 +60,20 @@ const showCertificateModal = ref(false);
 const showSeaServiceModal = ref(false);
 const showCvPreview = ref(false);
 
+// Preview states
+const currentPreview = ref(null);
+const showPreviewModal = ref(false);
+
+const previewFile = (url) => {
+    currentPreview.value = url.startsWith('http') ? url : `/storage/${url}`;
+    showPreviewModal.value = true;
+};
+
+const isImage = (url) => {
+    if (!url) return false;
+    return ['jpg', 'jpeg', 'png', 'gif'].includes(url.split('.').pop().toLowerCase());
+};
+
 const eduForm = useForm({
     institution_name: '',
     degree_program: '',
@@ -379,11 +393,18 @@ const groupedCerts = computed(() => {
                                 </div>
                                 <div v-else class="space-y-4">
                                     <div v-for="edu in profile.educations" :key="edu.id" class="p-5 bg-white rounded-2xl border border-gray-50 shadow-sm hover:border-indigo-400 group/item transition-all flex items-center justify-between">
-                                        <div class="min-w-0">
+                                        <div class="min-w-0 pr-4">
                                             <p class="text-[11px] font-black text-gray-900 truncate uppercase tracking-tight">{{ edu.institution_name }}</p>
                                             <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest italic">{{ edu.degree_program }} &bull; {{ edu.graduation_year }}</p>
                                         </div>
-                                        <div class="w-1.5 h-1.5 rounded-full bg-indigo-200 group-hover/item:bg-indigo-500 transition-colors"></div>
+                                        <button 
+                                            v-if="edu.diploma_file_url" 
+                                            @click="previewFile(edu.diploma_file_url)"
+                                            class="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-md active:scale-90"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        </button>
+                                        <div v-else class="w-1.5 h-1.5 rounded-full bg-indigo-200"></div>
                                     </div>
                                 </div>
                             </div>
@@ -412,6 +433,13 @@ const groupedCerts = computed(() => {
                                                     <p class="text-[11px] font-black text-gray-900 truncate uppercase tracking-tight">{{ cert.cert_name }}</p>
                                                     <p class="text-[9px] font-mono font-bold text-gray-400 mt-1 tracking-widest italic">{{ cert.cert_number }}</p>
                                                 </div>
+                                                <button 
+                                                    v-if="cert.cert_file_url" 
+                                                    @click="previewFile(cert.cert_file_url)"
+                                                    class="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-amber-600 transition-all shadow-md active:scale-90 flex-shrink-0"
+                                                >
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                </button>
                                             </div>
                                         </div>
                                     </template>
@@ -438,7 +466,14 @@ const groupedCerts = computed(() => {
                                             <p class="text-[11px] font-black text-gray-900 truncate uppercase tracking-tight">{{ sea.vessel_name }}</p>
                                             <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest italic">{{ sea.company_name }} &bull; {{ sea.duration_months }} Mos Logged</p>
                                         </div>
-                                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-black active:scale-95 transition-all">🚢</div>
+                                        <button 
+                                            v-if="sea.contract_file_url" 
+                                            @click="previewFile(sea.contract_file_url)"
+                                            class="w-9 h-9 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-all shadow-md active:scale-90 flex-shrink-0"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        </button>
+                                        <div v-else class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-black">🚢</div>
                                     </div>
                                 </div>
                             </div>
@@ -667,11 +702,18 @@ const groupedCerts = computed(() => {
                                     Sea Service History
                                 </h5>
                                 <div class="space-y-6">
-                                    <div v-for="sea in profile?.sea_services" :key="sea.id" class="relative pl-6 border-l-2 border-gray-100">
-                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-emerald-500"></div>
-                                        <p class="text-sm font-black text-gray-900 uppercase">{{ sea.vessel_name }}</p>
-                                        <p class="text-[11px] font-bold text-gray-500 mt-1">{{ sea.rank_at_time }} &bull; {{ sea.duration_months }} Months</p>
-                                        <p class="text-[10px] font-medium text-gray-400 mt-0.5">{{ sea.company_name }}</p>
+                                    <div v-for="sea in profile?.sea_services" :key="sea.id" class="relative pl-6 border-l-2 border-gray-100 group">
+                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-emerald-500 group-hover:scale-150 transition-transform"></div>
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <p class="text-sm font-black text-gray-900 uppercase">{{ sea.vessel_name }}</p>
+                                                <p class="text-[11px] font-bold text-gray-500 mt-1">{{ sea.rank_at_time }} &bull; {{ sea.duration_months }} Months</p>
+                                                <p class="text-[10px] font-medium text-gray-400 mt-0.5">{{ sea.company_name }}</p>
+                                            </div>
+                                            <button v-if="sea.contract_file_url" @click="previewFile(sea.contract_file_url)" class="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                              </div>
@@ -682,11 +724,18 @@ const groupedCerts = computed(() => {
                                     Academic Background
                                 </h5>
                                 <div class="space-y-6">
-                                    <div v-for="edu in profile?.educations" :key="edu.id" class="relative pl-6 border-l-2 border-gray-100">
-                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-indigo-500"></div>
-                                        <p class="text-sm font-black text-gray-900 uppercase">{{ edu.institution_name }}</p>
-                                        <p class="text-[11px] font-bold text-gray-500 mt-1">{{ edu.degree_program }}</p>
-                                        <p class="text-[10px] font-medium text-gray-400 mt-0.5">Class of {{ edu.graduation_year }}</p>
+                                    <div v-for="edu in profile?.educations" :key="edu.id" class="relative pl-6 border-l-2 border-gray-100 group">
+                                        <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-indigo-500 group-hover:scale-150 transition-transform"></div>
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <p class="text-sm font-black text-gray-900 uppercase">{{ edu.institution_name }}</p>
+                                                <p class="text-[11px] font-bold text-gray-500 mt-1">{{ edu.degree_program }}</p>
+                                                <p class="text-[10px] font-medium text-gray-400 mt-0.5">Class of {{ edu.graduation_year }}</p>
+                                            </div>
+                                            <button v-if="edu.diploma_file_url" @click="previewFile(edu.diploma_file_url)" class="text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                              </div>
@@ -721,6 +770,35 @@ const groupedCerts = computed(() => {
                     <button @click="showCvPreview = false" class="px-10 py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">
                         Terminate Session
                     </button>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- Institutional File Preview Modal -->
+        <Modal :show="showPreviewModal" @close="showPreviewModal = false" maxWidth="4xl">
+            <div class="bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col max-h-[90vh]">
+                <div class="px-8 py-5 border-b border-white/5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                        <h3 class="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">Evidence Inspection</h3>
+                    </div>
+                    <button @click="showPreviewModal = false" class="text-white/40 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="flex-grow p-4 bg-slate-900 overflow-hidden flex items-center justify-center bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-800 to-slate-900">
+                    <div v-if="currentPreview" class="w-full h-full flex items-center justify-center">
+                        <img v-if="isImage(currentPreview)" :src="currentPreview" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl" />
+                        <iframe v-else :src="currentPreview" class="w-full h-[75vh] rounded-xl border border-white/5 shadow-2xl bg-white"></iframe>
+                    </div>
+                </div>
+                <div class="px-10 py-6 bg-black flex justify-between items-center border-t border-white/5">
+                    <div class="flex items-center gap-4">
+                        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Institutional Asset Audit</p>
+                    </div>
+                    <a :href="currentPreview" download class="px-8 py-3 bg-white text-gray-900 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl hover:bg-indigo-400 hover:text-white transition-all shadow-xl italic">
+                        Download Master File
+                    </a>
                 </div>
             </div>
         </Modal>
