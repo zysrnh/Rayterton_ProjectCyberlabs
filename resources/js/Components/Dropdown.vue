@@ -27,8 +27,12 @@ onUnmounted(() => document.removeEventListener('keydown', closeOnEscape));
 
 const widthClass = computed(() => {
     return {
-        48: 'w-48',
-    }[props.width.toString()];
+        '48': 'w-48',
+        '56': 'w-56',
+        '64': 'w-64',
+        '80': 'w-80',
+        '96': 'w-96',
+    }[props.width.toString()] || 'w-48';
 });
 
 const alignmentClasses = computed(() => {
@@ -53,21 +57,21 @@ const open = ref(false);
         <!-- Full Screen Dropdown Overlay -->
         <div
             v-show="open"
-            class="fixed inset-0 z-40"
+            class="fixed inset-0 z-40 bg-black/5 backdrop-blur-[1px]"
             @click="open = false"
         ></div>
 
         <Transition
-            enter-active-class="transition ease-out duration-200"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
+            enter-active-class="transition-all ease-out duration-300 transform"
+            enter-from-class="opacity-0 scale-90 -translate-y-2 blur-sm"
+            enter-to-class="opacity-100 scale-100 translate-y-0 blur-0"
+            leave-active-class="transition-all ease-in duration-200 transform"
+            leave-from-class="opacity-100 scale-100 translate-y-0 blur-0"
+            leave-to-class="opacity-0 scale-95 -translate-y-1 blur-sm"
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
+                class="absolute z-50 mt-4"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false"

@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SlideOver from '@/Components/SlideOver.vue';
 import Modal from '@/Components/Modal.vue';
+import CustomSelect from '@/Components/CustomSelect.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
@@ -141,37 +142,37 @@ const isImage = (url) => {
                     </div>
 
                     <!-- Deep Intelligence Filters (Inline) -->
-                    <div class="bg-white border border-gray-100 rounded-[2.5rem] p-4 shadow-sm flex flex-wrap items-center gap-6">
-                        <div class="flex items-center gap-3 border-r border-gray-100 pr-6 mr-2">
-                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm flex flex-wrap items-center gap-8">
+                        <div class="flex items-center gap-4 border-r border-gray-100 pr-8 mr-2">
+                             <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                              </div>
-                             <span class="text-[10px] font-black text-gray-900 uppercase tracking-widest italic">Deep Insight</span>
+                             <span class="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em] italic">Deep Insight</span>
                         </div>
                         
-                        <div class="flex flex-wrap items-center gap-4 flex-grow">
-                             <div class="min-w-[200px]">
-                                <select v-model="rankFilter" class="w-full bg-gray-50/50 border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest px-6 py-4 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all">
-                                    <option value="">Functional: All Ranks</option>
-                                    <option v-for="r in ranks" :key="r" :value="r">{{ r }}</option>
-                                </select>
-                            </div>
-                            <div class="min-w-[200px]">
-                                <select v-model="regionFilter" class="w-full bg-gray-50/50 border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest px-6 py-4 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all">
-                                    <option value="">Geography: All Regions</option>
-                                    <option v-for="reg in regions" :key="reg" :value="reg">{{ reg }}</option>
-                                </select>
-                            </div>
-                            <div class="min-w-[200px]">
-                                <select v-model="certTypeFilter" class="w-full bg-gray-50/50 border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest px-6 py-4 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 transition-all">
-                                    <option value="">Evidence: All Vaults</option>
-                                    <option v-for="ct in certTypes" :key="ct" :value="ct">Holders: {{ ct }}</option>
-                                </select>
-                            </div>
+                        <div class="flex flex-wrap items-end gap-6 flex-grow">
+                            <CustomSelect 
+                                v-model="rankFilter" 
+                                :options="ranks" 
+                                placeholder="Functional: All Ranks" 
+                                label="Expertise Search"
+                            />
+                            <CustomSelect 
+                                v-model="regionFilter" 
+                                :options="regions" 
+                                placeholder="Geography: All Regions" 
+                                label="Operational Scope"
+                            />
+                            <CustomSelect 
+                                v-model="certTypeFilter" 
+                                :options="certTypes" 
+                                placeholder="Evidence: All Vaults" 
+                                label="Vault Search"
+                            />
                         </div>
 
-                        <button @click="rankFilter = ''; regionFilter = ''; certTypeFilter = ''" class="px-6 py-4 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-indigo-600 transition-colors mr-2">
-                            Reset Intelligence
+                        <button @click="rankFilter = ''; regionFilter = ''; certTypeFilter = ''" class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-indigo-600 transition-colors mr-2">
+                            Reset Filters
                         </button>
                     </div>
                 </div>
