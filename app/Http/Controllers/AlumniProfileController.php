@@ -83,6 +83,9 @@ class AlumniProfileController extends Controller
             'verification_status' => 'pending'
         ]);
 
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_stats');
+        \Illuminate\Support\Facades\Cache::forget('alumni_registry_queue');
+
         return redirect()->back()->with('success', 'Profil Anda telah diajukan untuk verifikasi.');
     }
 }

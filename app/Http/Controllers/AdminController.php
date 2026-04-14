@@ -15,22 +15,24 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $pendingCount = \App\Models\AlumniProfile::where('verification_status', 'pending')->count();
-        $verifiedCount = \App\Models\AlumniProfile::where('verification_status', 'verified')->count();
-        $companyCount = User::where('role_id', 'company')->count();
+        $stats = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_stats', 3600, function () {
+            return [
+                'pending' => \App\Models\AlumniProfile::where('verification_status', 'pending')->count(),
+                'verified' => \App\Models\AlumniProfile::where('verification_status', 'verified')->count(),
+                'companies' => User::where('role_id', 'company')->count()
+            ];
+        });
 
-        $recentVerified = \App\Models\AlumniProfile::where('verification_status', 'verified')
-            ->orderBy('verified_at', 'desc')
-            ->take(5)
-            ->get();
+        $recentVerified = \Illuminate\Support\Facades\Cache::remember('recent_verified_alumni', 3600, function () {
+            return \App\Models\AlumniProfile::where('verification_status', 'verified')
+                ->orderBy('verified_at', 'desc')
+                ->take(5)
+                ->get();
+        });
 
         return Inertia::render('Admin/Dashboard', [
             'role' => $request->user()->role_id,
-            'stats' => [
-                'pending' => $pendingCount,
-                'verified' => $verifiedCount,
-                'companies' => $companyCount
-            ],
+            'stats' => $stats,
             'recentVerified' => $recentVerified
         ]);
     }
@@ -41,10 +43,12 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $allProfiles = \App\Models\AlumniProfile::whereNot('verification_status', 'unverified')
-            ->with(['educations', 'certificates', 'seaServices'])
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        $allProfiles = \Illuminate\Support\Facades\Cache::remember('alumni_registry_queue', 3600, function () {
+            return \App\Models\AlumniProfile::whereNot('verification_status', 'unverified')
+                ->with(['educations', 'certificates', 'seaServices'])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+        });
 
         return Inertia::render('Admin/VerificationQueue', [
             'queue' => $allProfiles
@@ -63,6 +67,10 @@ class AdminController extends Controller
             'verified_at' => now(),
         ]);
 
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_stats');
+        \Illuminate\Support\Facades\Cache::forget('recent_verified_alumni');
+        \Illuminate\Support\Facades\Cache::forget('alumni_registry_queue');
+
         return redirect()->back()->with('success', 'Profile Approved!');
     }
 
@@ -77,6 +85,9 @@ class AdminController extends Controller
             $profile->update([
                 'verification_status' => 'in_review'
             ]);
+            
+            \Illuminate\Support\Facades\Cache::forget('admin_dashboard_stats');
+            \Illuminate\Support\Facades\Cache::forget('alumni_registry_queue');
         }
 
         return redirect()->back();
