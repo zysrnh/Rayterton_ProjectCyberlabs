@@ -9,6 +9,10 @@ const props = defineProps({
     title: {
         type: String,
         default: 'Panel Details',
+    },
+    customContent: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -76,8 +80,8 @@ watch(
                                     </button>
                                 </div>
 
-                                <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
-                                    <div class="px-12 py-12 bg-indigo-600 shadow-2xl relative overflow-hidden">
+                                <div :class="['flex h-full flex-col overflow-y-auto bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]', customContent ? 'bg-[#0A0B10]' : '']">
+                                    <div v-if="!customContent" class="px-12 py-12 bg-indigo-600 shadow-2xl relative overflow-hidden">
                                         <div class="absolute -right-10 -top-10 opacity-10">
                                              <svg class="w-48 h-48" fill="white" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                                         </div>

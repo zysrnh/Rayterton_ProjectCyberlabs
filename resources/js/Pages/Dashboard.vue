@@ -41,6 +41,16 @@ const showSeaServiceModal = ref(false);
 const showCvPreview = ref(false);
 const currentPreview = ref(null);
 const showPreviewModal = ref(false);
+const showDeleteConfirmModal = ref(false);
+
+const isEditModeEdu = ref(false);
+const isEditModeCert = ref(false);
+const isEditModeSea = ref(false);
+const editIdEdu = ref(null);
+const editIdCert = ref(null);
+const editIdSea = ref(null);
+
+const deleteData = ref({ type: '', id: null });
 
 const previewFile = (url) => {
     currentPreview.value = url.startsWith('http') ? url : `/storage/${url}`;
@@ -55,9 +65,77 @@ const eduForm = useForm({ institution_name: '', degree_program: '', graduation_y
 const certForm = useForm({ cert_type: 'BST', cert_name: '', cert_number: '', issuing_body: '', issued_date: '', expiry_date: '', cert_file: null });
 const seaForm = useForm({ vessel_name: '', vessel_type: '', company_name: '', rank_at_time: '', start_date: '', end_date: '', route: '', contract_file: null, duration_months: 0 });
 
-const submitEdu = () => eduForm.post(route('alumni.educations.store'), { preserveScroll: true, forceFormData: true, onSuccess: () => { showEducationModal.value = false; eduForm.reset(); } });
-const submitCert = () => certForm.post(route('alumni.certificates.store'), { preserveScroll: true, forceFormData: true, onSuccess: () => { showCertificateModal.value = false; certForm.reset(); } });
-const submitSea = () => seaForm.post(route('alumni.seasearvices.store'), { preserveScroll: true, forceFormData: true, onSuccess: () => { showSeaServiceModal.value = false; seaForm.reset(); } });
+const openAddEdu = () => { isEditModeEdu.value = false; eduForm.reset(); showEducationModal.value = true; };
+const openEditEdu = (edu) => {
+    isEditModeEdu.value = true;
+    editIdEdu.value = edu.id;
+    eduForm.institution_name = edu.institution_name;
+    eduForm.degree_program = edu.degree_program;
+    eduForm.graduation_year = edu.graduation_year;
+    showEducationModal.value = true;
+};
+
+const openAddCert = () => { isEditModeCert.value = false; certForm.reset(); showCertificateModal.value = true; };
+const openEditCert = (cert) => {
+    isEditModeCert.value = true;
+    editIdCert.value = cert.id;
+    certForm.cert_type = cert.cert_type;
+    certForm.cert_name = cert.cert_name;
+    certForm.cert_number = cert.cert_number;
+    certForm.issuing_body = cert.issuing_body;
+    certForm.issued_date = cert.issued_date;
+    certForm.expiry_date = cert.expiry_date;
+    showCertificateModal.value = true;
+};
+
+const openAddSea = () => { isEditModeSea.value = false; seaForm.reset(); showSeaServiceModal.value = true; };
+const openEditSea = (sea) => {
+    isEditModeSea.value = true;
+    editIdSea.value = sea.id;
+    seaForm.vessel_name = sea.vessel_name;
+    seaForm.vessel_type = sea.vessel_type;
+    seaForm.company_name = sea.company_name;
+    seaForm.rank_at_time = sea.rank_at_time;
+    seaForm.start_date = sea.start_date;
+    seaForm.end_date = sea.end_date;
+    seaForm.route = sea.route;
+    showSeaServiceModal.value = true;
+};
+
+const submitEdu = () => {
+    const url = isEditModeEdu.value ? route('alumni.educations.update', editIdEdu.value) : route('alumni.educations.store');
+    eduForm.post(url, { preserveScroll: true, forceFormData: true, onSuccess: () => { showEducationModal.value = false; eduForm.reset(); } });
+};
+
+const submitCert = () => {
+    const url = isEditModeCert.value ? route('alumni.certificates.update', editIdCert.value) : route('alumni.certificates.store');
+    certForm.post(url, { preserveScroll: true, forceFormData: true, onSuccess: () => { showCertificateModal.value = false; certForm.reset(); } });
+};
+
+const submitSea = () => {
+    const url = isEditModeSea.value ? route('alumni.seasearvices.update', editIdSea.value) : route('alumni.seasearvices.store');
+    seaForm.post(url, { preserveScroll: true, forceFormData: true, onSuccess: () => { showSeaServiceModal.value = false; seaForm.reset(); } });
+};
+
+const deleteEntry = (type, id) => {
+    deleteData.value = { type, id };
+    showDeleteConfirmModal.value = true;
+};
+
+const confirmDelete = () => {
+    const { type, id } = deleteData.value;
+    let url;
+    if (type === 'edu') url = route('alumni.educations.destroy', id);
+    else if (type === 'cert') url = route('alumni.certificates.destroy', id);
+    else if (type === 'sea') url = route('alumni.seasearvices.destroy', id);
+    
+    router.delete(url, { 
+        preserveScroll: true,
+        onSuccess: () => {
+            showDeleteConfirmModal.value = false;
+        }
+    });
+};
 
 const isExpiringSoon = (date) => {
     if (!date) return false;
@@ -338,42 +416,56 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                     <p class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest mt-0.5">Verified Scholastic Records</p>
                                 </div>
                             </div>
-                            <button @click="showEducationModal = true" class="px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-50 active:scale-95">
+                            <button @click="openAddEdu" class="px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-50 active:scale-95">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                                 Add Entry
                             </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full table-fixed">
+                                <colgroup>
+                                    <col class="w-[35%]">
+                                    <col class="w-[30%]">
+                                    <col class="w-[20%]">
+                                    <col class="w-[15%]">
+                                </colgroup>
                                 <thead>
                                     <tr class="text-left border-b border-gray-100 bg-gray-50/50">
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[35%]">Institution</th>
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[30%]">Degree / Major</th>
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[20%] text-center">Year</th>
-                                        <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest w-[15%]">Evidence</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Institution</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Degree / Major</th>
+                                        <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Graduation Year</th>
+                                        <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-if="!props.profile?.educations?.length">
-                                        <td colspan="4" class="px-8 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No academic records synchronized to ledger</td>
+                                        <td colspan="4" class="px-6 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No academic records synchronized to ledger</td>
                                     </tr>
                                     <tr v-for="edu in props.profile?.educations" :key="edu.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
-                                        <td class="px-8 py-6">
+                                        <td class="px-6 py-6">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011-1v5m-4 0h4"/></svg>
                                                 </div>
                                                 <p class="text-sm font-black text-gray-900 uppercase tracking-tight truncate">{{ edu.institution_name }}</p>
                                             </div>
                                         </td>
-                                        <td class="px-8 py-6 text-xs font-bold text-gray-500 uppercase tracking-wide truncate">{{ edu.degree_program }}</td>
-                                        <td class="px-8 py-6 text-center">
+                                        <td class="px-6 py-6 text-xs font-bold text-gray-500 uppercase tracking-wide truncate">{{ edu.degree_program }}</td>
+                                        <td class="px-6 py-6 text-center">
                                             <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100 inline-block">{{ edu.graduation_year }}</span>
                                         </td>
-                                        <td class="px-8 py-6 text-right">
-                                            <button v-if="edu.diploma_file_url" @click="previewFile(edu.diploma_file_url)" class="w-10 h-10 bg-gray-950 text-white rounded-xl inline-flex items-center justify-center hover:bg-indigo-600 transition-all active:scale-95 shadow-lg group-hover:scale-110">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            </button>
+                                        <td class="px-6 py-6 text-right font-bold">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button v-if="edu.diploma_file_url" @click="previewFile(edu.diploma_file_url)" class="w-8 h-8 bg-gray-950 text-white rounded-lg inline-flex items-center justify-center hover:bg-indigo-600 transition-all active:scale-95 shadow-lg group-hover:scale-110">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                </button>
+                                                <button @click="openEditEdu(edu)" class="w-8 h-8 bg-amber-500 text-white rounded-lg inline-flex items-center justify-center hover:bg-amber-600 transition-all active:scale-95 shadow-lg">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                </button>
+                                                <button @click="deleteEntry('edu', edu.id)" class="w-8 h-8 bg-rose-500 text-white rounded-lg inline-flex items-center justify-center hover:bg-rose-600 transition-all active:scale-95 shadow-lg">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -393,30 +485,39 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                     <p class="text-[9px] text-amber-500 font-bold uppercase tracking-widest mt-0.5">Digital Competency Matrix</p>
                                 </div>
                             </div>
-                            <button @click="showCertificateModal = true" class="px-5 py-2.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-600 transition-all flex items-center gap-2 shadow-lg shadow-amber-50 active:scale-95">
+                            <button @click="openAddCert" class="px-5 py-2.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-600 transition-all flex items-center gap-2 shadow-lg shadow-amber-50 active:scale-95">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                                 New Deposit
                             </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full table-fixed border-collapse">
+                                <colgroup>
+                                    <col class="w-[100px]">
+                                    <col class="w-[28%]">
+                                    <col class="w-[20%]">
+                                    <col class="w-[28%]">
+                                    <col class="w-[124px]">
+                                </colgroup>
                                 <thead>
                                     <tr class="text-left border-b border-gray-100 bg-gray-50/50">
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[110px]">Type</th>
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[40%]">Certificate Record</th>
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[35%]">Serial Sequence</th>
-                                        <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest w-[100px]">Action</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Certificate Record</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Serial #</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Validity Audit</th>
+                                        <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-if="!props.profile?.certificates?.length">
-                                        <td colspan="4" class="px-8 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No institutional credentials filed in vault</td>
+                                        <td colspan="5" class="px-6 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No institutional credentials filed in vault</td>
                                     </tr>
                                     <template v-for="(certs, type) in groupedCerts" :key="type">
                                         <tr v-for="cert in certs" :key="cert.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
-                                            <td class="px-8 py-6">
+                                            <!-- Col 1: Type -->
+                                            <td class="px-6 py-6 text-center">
                                                 <div :class="[
-                                                    'inline-flex items-center justify-center w-10 h-10 rounded-xl border shadow-sm transition-transform group-hover:scale-110',
+                                                    'inline-flex items-center justify-center w-10 h-10 rounded-xl border shadow-sm transition-transform group-hover:scale-110 mx-auto',
                                                     cert.cert_type === 'BST' ? 'bg-indigo-50 border-indigo-100 text-indigo-600' :
                                                     cert.cert_type === 'COP' ? 'bg-amber-50 border-amber-100 text-amber-600' :
                                                     cert.cert_type === 'COC' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-600'
@@ -426,7 +527,9 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                                     <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 00-3 0 2.703 2.703 0 00-3 0 2.703 2.703 0 00-3 0 2.701 2.701 0 00-1.5-.454M9 16v2m3-6v6m3-8v8m-7 0h8a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2z"/></svg>
                                                 </div>
                                             </td>
-                                            <td class="px-8 py-6">
+
+                                            <!-- Col 2: Name -->
+                                            <td class="px-6 py-6">
                                                 <div class="flex items-center gap-2.5">
                                                     <p class="text-sm font-black text-gray-900 uppercase tracking-tight truncate">{{ cert.cert_name }}</p>
                                                     <div v-if="cert.verification_status === 'cleared'" class="text-emerald-500 flex-shrink-0" title="Institution Verified">
@@ -435,29 +538,61 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                                 </div>
                                                 <p class="text-[9px] text-gray-400 font-black uppercase mt-0.5 tracking-widest italic truncate">{{ cert.issuing_body }}</p>
                                             </td>
-                                            <td class="px-8 py-6">
-                                                <div class="flex flex-col gap-1">
-                                                    <span class="text-[11px] font-mono font-black text-gray-700 tracking-wider">
-                                                        #{{ cert.cert_number }}
-                                                    </span>
-                                                    <div class="flex flex-col gap-0.5 mt-1 pt-1 border-t border-gray-50">
-                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
-                                                            Expiry: {{ cert.expiry_date || 'N/A' }}
+
+                                            <!-- Col 3: Serial -->
+                                            <td class="px-6 py-6">
+                                                <span class="text-[11px] font-mono font-black text-gray-700 tracking-wider">#{{ cert.cert_number }}</span>
+                                            </td>
+
+                                            <!-- Col 4: Audit -->
+                                            <td class="px-6 py-6">
+                                                <div class="flex flex-col gap-0.5">
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
+                                                        Exp: {{ cert.expiry_date || 'N/A' }}
+                                                    </p>
+                                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                                        <span :class="['w-1.5 h-1.5 rounded-full', cert.expired ? 'bg-rose-600' : (cert.expiringSoon ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500')]"></span>
+                                                        <p :class="['text-[9px] font-black uppercase tracking-widest italic', cert.expired ? 'text-rose-600' : (cert.expiringSoon ? 'text-amber-500' : 'text-emerald-500')]">
+                                                            {{ cert.expired ? '0 Days (Security Lapse)' : `Remaining: ${cert.daysLeft} Days` }}
                                                         </p>
-                                                        <div class="flex items-center gap-1.5">
-                                                            <span :class="['w-1.5 h-1.5 rounded-full', cert.expired ? 'bg-rose-600' : (cert.expiringSoon ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500')]"></span>
-                                                            <p :class="['text-[9px] font-black uppercase tracking-widest italic', cert.expired ? 'text-rose-600' : (cert.expiringSoon ? 'text-amber-500' : 'text-emerald-500')]">
-                                                                Remaining: {{ cert.expired ? 0 : cert.daysLeft }} Days
-                                                                <span v-if="cert.expired" class="ml-1 opacity-60">(Security Lapse)</span>
-                                                            </p>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="px-8 py-6 text-right">
-                                                <button v-if="cert.cert_file_url" @click="previewFile(cert.cert_file_url)" class="w-10 h-10 bg-gray-950 text-white rounded-xl inline-flex items-center justify-center hover:bg-amber-500 transition-all active:scale-95 shadow-lg group-hover:scale-110">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                </button>
+
+                                            <!-- Col 5: Action -->
+                                            <td class="px-6 py-6 text-right">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <button v-if="cert.cert_file_url" @click="previewFile(cert.cert_file_url)" 
+                                                        class="w-8 h-8 bg-gray-950 text-white rounded-lg inline-flex items-center justify-center hover:bg-indigo-600 transition-all active:scale-95 shadow-lg group-hover:scale-110"
+                                                        title="View Document">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                    </button>
+
+                                                    <button 
+                                                        @click="(cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired ? null : openEditCert(cert)"
+                                                        :class="[
+                                                            'w-8 h-8 rounded-lg inline-flex items-center justify-center transition-all active:scale-95 shadow-lg',
+                                                            (cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired 
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none' 
+                                                                : 'bg-amber-500 text-white hover:bg-amber-600'
+                                                        ]"
+                                                        :title="(cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired ? 'Locked: Verified' : 'Edit Record'">
+                                                        <svg v-if="(cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                        <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                    </button>
+
+                                                    <button 
+                                                        @click="(cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired ? null : deleteEntry('cert', cert.id)"
+                                                        :class="[
+                                                            'w-8 h-8 rounded-lg inline-flex items-center justify-center transition-all active:scale-95 shadow-lg',
+                                                            (cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired 
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none' 
+                                                                : 'bg-rose-500 text-white hover:bg-rose-600'
+                                                        ]"
+                                                        :title="(cert.verification_status === 'verified' || cert.verification_status === 'cleared') && !cert.expired ? 'Locked: Verified' : 'Delete Record'">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     </template>
@@ -478,27 +613,33 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                     <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-widest mt-0.5">Maritime History Chronology</p>
                                 </div>
                             </div>
-                            <button @click="showSeaServiceModal = true" class="px-5 py-2.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-50 active:scale-95">
+                            <button @click="openAddSea" class="px-5 py-2.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-50 active:scale-95">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                                 Log Voyage
                             </button>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full table-fixed">
+                            <table class="w-full table-fixed border-collapse">
+                                <colgroup>
+                                    <col class="w-[35%]">
+                                    <col class="w-[20%]">
+                                    <col class="w-[30%]">
+                                    <col class="w-[15%]">
+                                </colgroup>
                                 <thead>
                                     <tr class="text-left border-b border-gray-100 bg-gray-50/50">
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[35%]">Vessel Assets</th>
-                                        <th class="px-8 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest w-[140px]">Audit Period</th>
-                                        <th class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest w-[35%]">Operator / Jurisdiction</th>
-                                        <th class="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest w-[100px]">Evidence</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vessel Assets</th>
+                                        <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Audit Period</th>
+                                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Operator / Jurisdiction</th>
+                                        <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-if="!props.profile?.sea_services?.length">
-                                        <td colspan="4" class="px-8 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No historical maritime voyages logged</td>
+                                        <td colspan="4" class="px-6 py-16 text-center text-[11px] font-bold text-gray-300 uppercase tracking-[0.3em] italic">No historical maritime voyages logged</td>
                                     </tr>
                                     <tr v-for="sea in props.profile?.sea_services" :key="sea.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
-                                        <td class="px-8 py-6">
+                                        <td class="px-6 py-6">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
@@ -509,17 +650,25 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-8 py-6 text-center">
+                                        <td class="px-6 py-6 text-center">
                                             <span class="px-4 py-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-lg border border-emerald-100 shadow-sm inline-block">{{ sea.duration_months }} MONTHS</span>
                                         </td>
-                                        <td class="px-8 py-6">
+                                        <td class="px-6 py-6 font-bold">
                                             <p class="text-xs font-bold text-gray-700 uppercase tracking-wide truncate">{{ sea.company_name }}</p>
                                             <p class="text-[9px] text-gray-400 font-black uppercase mt-0.5 tracking-widest italic truncate">{{ sea.route }} Regional Command</p>
                                         </td>
-                                        <td class="px-8 py-6 text-right">
-                                            <button v-if="sea.contract_file_url" @click="previewFile(sea.contract_file_url)" class="w-10 h-10 bg-gray-950 text-white rounded-xl inline-flex items-center justify-center hover:bg-emerald-600 transition-all active:scale-95 shadow-lg group-hover:scale-110">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                            </button>
+                                        <td class="px-6 py-6 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button v-if="sea.contract_file_url" @click="previewFile(sea.contract_file_url)" class="w-8 h-8 bg-gray-950 text-white rounded-lg inline-flex items-center justify-center hover:bg-emerald-600 transition-all active:scale-95 shadow-lg group-hover:scale-110">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                </button>
+                                                <button @click="openEditSea(sea)" class="w-8 h-8 bg-amber-500 text-white rounded-lg inline-flex items-center justify-center hover:bg-amber-600 transition-all active:scale-95 shadow-lg">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                </button>
+                                                <button @click="deleteEntry('sea', sea.id)" class="w-8 h-8 bg-rose-500 text-white rounded-lg inline-flex items-center justify-center hover:bg-rose-600 transition-all active:scale-95 shadow-lg">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -540,7 +689,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
                         <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/></svg>
                     </div>
-                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">Add Academic Record</h3>
+                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">{{ isEditModeEdu ? 'Rectify Academic Record' : 'Add Academic Record' }}</h3>
                 </div>
                 <form @submit.prevent="submitEdu" class="space-y-5">
                     <div>
@@ -569,7 +718,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="flex justify-end gap-3 pt-3 border-t border-gray-100">
                         <button type="button" @click="showEducationModal = false" class="px-5 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest">Cancel</button>
                         <button type="submit" :disabled="eduForm.processing" class="px-7 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-colors disabled:opacity-50">
-                            Save Record
+                            {{ isEditModeEdu ? 'Update Ledger' : 'Save Record' }}
                         </button>
                     </div>
                 </form>
@@ -583,7 +732,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
                         <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
-                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">Add Certificate</h3>
+                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">{{ isEditModeCert ? 'Modify Credentials' : 'Add Certificate' }}</h3>
                 </div>
                 <form @submit.prevent="submitCert" class="space-y-5">
                     <div>
@@ -631,7 +780,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="flex justify-end gap-3 pt-3 border-t border-gray-100">
                         <button type="button" @click="showCertificateModal = false" class="px-5 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest">Cancel</button>
                         <button type="submit" :disabled="certForm.processing" class="px-7 py-2.5 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-amber-100 hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            Save Certificate
+                            {{ isEditModeCert ? 'Update Vault' : 'Save Certificate' }}
                         </button>
                     </div>
                 </form>
@@ -645,7 +794,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
                         <span class="text-base">🚢</span>
                     </div>
-                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">Log Sea Service</h3>
+                    <h3 class="text-base font-black text-gray-900 uppercase tracking-wider">{{ isEditModeSea ? 'Rectify Sea Service' : 'Log Sea Service' }}</h3>
                 </div>
                 <form @submit.prevent="submitSea" class="space-y-5 overflow-y-auto max-h-[65vh] pr-1">
                     <div class="grid grid-cols-2 gap-4">
@@ -694,7 +843,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <div class="flex justify-end gap-3 pt-3 border-t border-gray-100">
                         <button type="button" @click="showSeaServiceModal = false" class="px-5 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest">Cancel</button>
                         <button type="submit" :disabled="seaForm.processing" class="px-7 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-colors disabled:opacity-50">
-                            Log Service
+                            {{ isEditModeSea ? 'Update History' : 'Log Service' }}
                         </button>
                     </div>
                 </form>
@@ -868,5 +1017,55 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
             </div>
         </Modal>
 
+        <!-- Record Liquidation Confirm Modal -->
+        <Modal :show="showDeleteConfirmModal" @close="showDeleteConfirmModal = false" maxWidth="md">
+            <div class="p-8 text-center bg-gray-950 text-white rounded-2xl border border-white/10 shadow-2xl">
+                <div class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-rose-500/30">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <h3 class="text-lg font-black uppercase tracking-widest mb-2">Execute Liquidation?</h3>
+                <p class="text-xs text-gray-400 font-medium leading-relaxed mb-8">This action is immutable across the institutional registry. The selected record will be permanently purged from the maritime ledger.</p>
+                <div class="flex flex-col gap-3">
+                    <button @click="confirmDelete" class="w-full py-4 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-700 transition-all active:scale-95 shadow-xl shadow-rose-900/20">
+                        Confirm Liquidation
+                    </button>
+                    <button @click="showDeleteConfirmModal = false" class="w-full py-4 bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10 hover:text-white transition-all">
+                        Abort Operation
+                    </button>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- Global Intelligence Toasts -->
+        <div class="fixed bottom-8 right-8 z-[100] flex flex-col gap-3 pointer-events-none">
+            <TransitionGroup 
+                enter-active-class="transform ease-out duration-300 transition"
+                enter-from-class="translate-y-4 opacity-0 scale-95"
+                enter-to-class="translate-y-0 opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-200"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="$page.props.flash?.success" key="success" class="pointer-events-auto flex items-center gap-4 px-6 py-4 bg-emerald-600 text-white rounded-2xl shadow-2xl border border-white/10 min-w-[320px]">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Operation Success</p>
+                        <p class="text-xs font-bold">{{ $page.props.flash?.success }}</p>
+                    </div>
+                </div>
+
+                <div v-if="$page.props.flash?.error" key="error" class="pointer-events-auto flex items-center gap-4 px-6 py-4 bg-rose-600 text-white rounded-2xl shadow-2xl border border-white/10 min-w-[320px]">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Security Protocol</p>
+                        <p class="text-xs font-bold">{{ $page.props.flash?.error }}</p>
+                    </div>
+                </div>
+            </TransitionGroup>
+        </div>
     </AuthenticatedLayout>
 </template>

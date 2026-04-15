@@ -43,9 +43,22 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');
     Route::post('/alumni/toggle-availability', [AlumniProfileController::class, 'toggleAvailability'])->name('alumni.toggle_availability');
+    
+    // Education management
     Route::post('/alumni/educations', [\App\Http\Controllers\AlumniDataController::class, 'storeEducation'])->name('alumni.educations.store');
+    Route::post('/alumni/educations/{id}/update', [\App\Http\Controllers\AlumniDataController::class, 'updateEducation'])->name('alumni.educations.update');
+    Route::delete('/alumni/educations/{id}', [\App\Http\Controllers\AlumniDataController::class, 'destroyEducation'])->name('alumni.educations.destroy');
+
+    // Certificate management
     Route::post('/alumni/certificates', [\App\Http\Controllers\AlumniDataController::class, 'storeCertificate'])->name('alumni.certificates.store');
+    Route::post('/alumni/certificates/{id}/update', [\App\Http\Controllers\AlumniDataController::class, 'updateCertificate'])->name('alumni.certificates.update');
+    Route::delete('/alumni/certificates/{id}', [\App\Http\Controllers\AlumniDataController::class, 'destroyCertificate'])->name('alumni.certificates.destroy');
+
+    // Sea Service management
     Route::post('/alumni/sea-services', [\App\Http\Controllers\AlumniDataController::class, 'storeSeaService'])->name('alumni.seasearvices.store');
+    Route::post('/alumni/sea-services/{id}/update', [\App\Http\Controllers\AlumniDataController::class, 'updateSeaService'])->name('alumni.seasearvices.update');
+    Route::delete('/alumni/sea-services/{id}', [\App\Http\Controllers\AlumniDataController::class, 'destroySeaService'])->name('alumni.seasearvices.destroy');
+
     Route::post('/alumni/verify', [AlumniProfileController::class, 'submitForVerification'])->name('alumni.verify.submit');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
