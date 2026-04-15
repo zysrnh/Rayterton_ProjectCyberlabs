@@ -44,6 +44,14 @@ class HandleInertiaRequests extends Middleware
                 'latest_entries' => ($request->user() && in_array($request->user()->role_id, ['super_admin', 'verifier']))
                     ? \App\Models\AlumniProfile::orderBy('created_at', 'desc')->take(5)->get()
                     : [],
+                'expiry_alerts' => ($request->user() && $request->user()->role_id === 'alumni')
+                    ? \App\Models\Certificate::whereHas('alumniProfile', function($q) use ($request) {
+                        $q->where('user_id', $request->user()->id);
+                    })
+                    ->where('expiry_date', '<=', now()->addDays(7))
+                    ->orderBy('expiry_date', 'asc')
+                    ->get()
+                    : [],
                 'system_announcements' => [
                     [
                         'title' => 'Rayterton Protocol Update',

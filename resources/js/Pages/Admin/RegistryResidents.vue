@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import Modal from '@/Components/Modal.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -34,15 +35,22 @@ const getStatusColor = (status) => {
 };
 
 const confirmTermination = (id) => {
-    if (confirm('Institutional Alert: Are you absolutely sure you want to terminate this resident registry? This will move the record to the Governance Trash Center.')) {
-        router.delete(route('admin.users.destroy', id), {
-            preserveScroll: true,
-            onSuccess: () => alert('Registry Asset Liquidated to Trash.')
-        });
-    }
+    residentToDelete.value = id;
+    showDeleteModal.value = true;
 };
 
-import { router } from '@inertiajs/vue3';
+const executeTermination = () => {
+    router.delete(route('admin.users.destroy', residentToDelete.value), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            residentToDelete.value = null;
+        }
+    });
+};
+
+const showDeleteModal = ref(false);
+const residentToDelete = ref(null);
 
 </script>
 
@@ -66,13 +74,9 @@ import { router } from '@inertiajs/vue3';
                     </div>
                     
                     <div class="flex flex-col sm:flex-row items-center gap-4">
-                        <Link :href="route('admin.trash')" class="flex items-center gap-3 px-6 py-4.5 bg-gray-900 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-rose-600 transition-all active:scale-95 group">
-                            <svg class="w-4 h-4 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            Governance Trash
-                        </Link>
                         <div class="relative group">
-                            <input v-model="searchQuery" type="text" placeholder="Trace Resident Identity..." class="w-full sm:w-96 bg-white border-gray-200 rounded-3xl text-sm font-bold pl-14 pr-6 py-5 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 shadow-xl shadow-gray-100 transition-all placeholder:text-gray-300" />
-                            <div class="absolute left-6 top-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors">
+                            <input v-model="searchQuery" type="text" placeholder="Trace Resident Identity..." class="w-full sm:w-[480px] bg-white border-gray-200 rounded-3xl text-sm font-bold pl-14 pr-6 py-5 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 shadow-xl shadow-gray-100 transition-all placeholder:text-gray-300" />
+                            <div class="absolute left-6 top-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors pointer-events-none">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
                         </div>
@@ -162,5 +166,23 @@ import { router } from '@inertiajs/vue3';
 
             </div>
         </div>
+        <Modal :show="showDeleteModal" @close="showDeleteModal = false" maxWidth="lg">
+            <div class="p-10 bg-white text-center">
+                <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner ring-8 ring-rose-50/50 animate-pulse">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-tighter italic mb-4">Registry Liquidation</h3>
+                <p class="text-sm font-medium text-gray-500 leading-relaxed mb-10">You are about to move this candidate registry to the <span class="text-rose-600 font-bold">Cemetery Trash Center</span>. This action restricts all access until restoration.</p>
+                <div class="flex flex-col gap-3">
+                    <button @click="executeTermination" class="w-full py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl active:scale-95">
+                        Liquidate Resident
+                    </button>
+                    <button @click="showDeleteModal = false" class="w-full py-4 bg-gray-50 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 hover:text-gray-900 transition-all">
+                        Cancel Protocol
+                    </button>
+                </div>
+            </div>
+        </Modal>
+
     </AuthenticatedLayout>
 </template>

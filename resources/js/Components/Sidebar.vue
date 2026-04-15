@@ -79,8 +79,18 @@ defineEmits(['close']);
         </nav>
         
         <!-- Sidebar Footer -->
-        <div class="p-8 border-t border-white/5 shrink-0">
-            <Link :href="route('logout')" method="post" as="button" class="flex items-center w-full px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-500 rounded-2xl hover:bg-rose-500/10 hover:text-rose-500 transition-all duration-300 group">
+        <div class="p-8 border-t border-white/5 shrink-0 space-y-2">
+            <!-- Trash Hub (Only for Super Admin) -->
+            <Link 
+                v-if="$page.props.auth.user.role_id === 'super_admin'"
+                :href="route('admin.trash')" 
+                :class="[route().current('admin.trash') ? 'bg-rose-600 text-white shadow-xl shadow-rose-500/20' : 'text-slate-500 hover:bg-rose-500/10 hover:text-rose-500', 'group flex items-center px-5 py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all duration-300']"
+            >
+                <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Registry Trash
+            </Link>
+
+            <Link :href="route('logout')" method="post" as="button" class="flex items-center w-full px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-2xl hover:bg-rose-500/10 hover:text-rose-500 transition-all duration-300 group">
                 <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 Exit Control
             </Link>

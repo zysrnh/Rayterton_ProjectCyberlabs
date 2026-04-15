@@ -59,11 +59,35 @@ const submitEdu = () => eduForm.post(route('alumni.educations.store'), { preserv
 const submitCert = () => certForm.post(route('alumni.certificates.store'), { preserveScroll: true, forceFormData: true, onSuccess: () => { showCertificateModal.value = false; certForm.reset(); } });
 const submitSea = () => seaForm.post(route('alumni.seasearvices.store'), { preserveScroll: true, forceFormData: true, onSuccess: () => { showSeaServiceModal.value = false; seaForm.reset(); } });
 
+const isExpiringSoon = (date) => {
+    if (!date) return false;
+    const expiry = new Date(date);
+    const now = new Date();
+    const diff = (expiry - now) / (1000 * 60 * 60 * 24);
+    return diff <= 7 && diff > 0;
+};
+
+const isExpired = (date) => {
+    if (!date) return false;
+    return new Date(date) < new Date();
+};
+
+const getDaysRemaining = (date) => {
+    if (!date) return 0;
+    const diffTime = new Date(date) - new Date();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
 const groupedCerts = computed(() => {
     if (!props.profile?.certificates) return {};
     return props.profile.certificates.reduce((acc, cert) => {
         if (!acc[cert.cert_type]) acc[cert.cert_type] = [];
-        acc[cert.cert_type].push(cert);
+        acc[cert.cert_type].push({
+            ...cert,
+            expiringSoon: isExpiringSoon(cert.expiry_date),
+            expired: isExpired(cert.expiry_date),
+            daysLeft: getDaysRemaining(cert.expiry_date)
+        });
         return acc;
     }, {});
 });
@@ -104,6 +128,26 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                             <span :class="['w-2 h-2 rounded-full', props.profile?.availability_status === 'open_to_offers' ? 'bg-emerald-300' : 'bg-gray-300']"></span>
                             {{ props.profile?.availability_status === 'open_to_offers' ? 'Open to Offers' : 'Mark Available' }}
                         </button>
+                    </div>
+                </div>
+
+                <!-- Verification Shield banner -->
+                <div v-if="isVerified" class="p-6 bg-emerald-600 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center justify-between shadow-2xl shadow-emerald-200 group relative overflow-hidden transition-all hover:scale-[1.01]">
+                    <div class="flex items-center gap-5 relative z-10">
+                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-80 italic">Rayterton Identity Cleared</p>
+                            <h3 class="text-2xl font-black tracking-tight leading-tight">Registry Verification Shield Active</h3>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 relative z-10 mt-4 md:mt-0">
+                        <span class="px-5 py-2 bg-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest border border-white/20 backdrop-blur-lg italic">Compliance Secured</span>
+                    </div>
+                    <!-- Background Pattern -->
+                    <div class="absolute inset-0 opacity-10 pointer-events-none">
+                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 L100 0 L100 100 Z" fill="white"></path></svg>
                     </div>
                 </div>
 
@@ -392,9 +436,22 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                                 <p class="text-[9px] text-gray-400 font-black uppercase mt-0.5 tracking-widest italic truncate">{{ cert.issuing_body }}</p>
                                             </td>
                                             <td class="px-8 py-6">
-                                                <div class="flex flex-col">
-                                                    <span class="text-[11px] font-mono font-black text-gray-700 tracking-wider">#{{ cert.cert_number }}</span>
-                                                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 italic">VALIDATED: {{ cert.issued_date }}</span>
+                                                <div class="flex flex-col gap-1">
+                                                    <span class="text-[11px] font-mono font-black text-gray-700 tracking-wider">
+                                                        #{{ cert.cert_number }}
+                                                    </span>
+                                                    <div class="flex flex-col gap-0.5 mt-1 pt-1 border-t border-gray-50">
+                                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
+                                                            Expiry: {{ cert.expiry_date || 'N/A' }}
+                                                        </p>
+                                                        <div class="flex items-center gap-1.5">
+                                                            <span :class="['w-1.5 h-1.5 rounded-full', cert.expired ? 'bg-rose-600' : (cert.expiringSoon ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500')]"></span>
+                                                            <p :class="['text-[9px] font-black uppercase tracking-widest italic', cert.expired ? 'text-rose-600' : (cert.expiringSoon ? 'text-amber-500' : 'text-emerald-500')]">
+                                                                Remaining: {{ cert.expired ? 0 : cert.daysLeft }} Days
+                                                                <span v-if="cert.expired" class="ml-1 opacity-60">(Security Lapse)</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="px-8 py-6 text-right">

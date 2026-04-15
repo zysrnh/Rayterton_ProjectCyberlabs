@@ -22,4 +22,9 @@ class Certificate extends Model
         'verification_status',
         'endorsements'
     ];
+
+    public function alumniProfile()
+    {
+        return $this->belongsTo(AlumniProfile::class);
+    }
 }
