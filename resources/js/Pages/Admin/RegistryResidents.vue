@@ -33,6 +33,17 @@ const getStatusColor = (status) => {
     }[status] || 'bg-gray-100 text-gray-400';
 };
 
+const confirmTermination = (id) => {
+    if (confirm('Institutional Alert: Are you absolutely sure you want to terminate this resident registry? This will move the record to the Governance Trash Center.')) {
+        router.delete(route('admin.users.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => alert('Registry Asset Liquidated to Trash.')
+        });
+    }
+};
+
+import { router } from '@inertiajs/vue3';
+
 </script>
 
 <template>
@@ -55,6 +66,10 @@ const getStatusColor = (status) => {
                     </div>
                     
                     <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <Link :href="route('admin.trash')" class="flex items-center gap-3 px-6 py-4.5 bg-gray-900 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-rose-600 transition-all active:scale-95 group">
+                            <svg class="w-4 h-4 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Governance Trash
+                        </Link>
                         <div class="relative group">
                             <input v-model="searchQuery" type="text" placeholder="Trace Resident Identity..." class="w-full sm:w-96 bg-white border-gray-200 rounded-3xl text-sm font-bold pl-14 pr-6 py-5 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-600 shadow-xl shadow-gray-100 transition-all placeholder:text-gray-300" />
                             <div class="absolute left-6 top-5 text-gray-300 group-focus-within:text-indigo-600 transition-colors">
@@ -122,7 +137,9 @@ const getStatusColor = (status) => {
 
                         <!-- Interaction -->
                         <div class="mt-10 pt-8 border-t border-gray-50 flex items-center justify-between">
-                            <span class="text-[9px] font-black text-gray-300 uppercase italic tracking-widest tracking-widest">Resident ID: {{ user.id.slice(0, 8) }}</span>
+                            <button @click="confirmTermination(user.id)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-all border border-transparent hover:border-rose-100 shadow-sm active:scale-90" title="Terminate Account">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
                             <Link v-if="user.role_id === 'alumni' && user.alumni_profile" :href="route('admin.verifications.queue')" class="px-6 py-3 bg-white border border-gray-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-gray-900 hover:bg-black hover:text-white transition-all shadow-sm">
                                 Audit Ledger
                             </Link>

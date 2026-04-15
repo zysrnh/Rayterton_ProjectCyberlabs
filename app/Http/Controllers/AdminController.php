@@ -145,4 +145,74 @@ class AdminController extends Controller
             'filters' => $request->only(['search'])
         ]);
     }
+
+    public function destroyAlumni(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $user = User::findOrFail($id);
+        
+        // Soft delete profile if exists
+        if ($user->alumniProfile) {
+            $user->alumniProfile->delete();
+        }
+        
+        $user->delete();
+
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_stats');
+        \Illuminate\Support\Facades\Cache::forget('alumni_registry_queue');
+
+        return redirect()->back()->with('success', 'Account moved to trash!');
+    }
+
+    public function trash(Request $request)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $trashedUsers = User::onlyTrashed()
+            ->with(['alumniProfile' => function($q) { $q->onlyTrashed(); }])
+            ->get();
+
+        return Inertia::render('Admin/TrashCenter', [
+            'trashed' => $trashedUsers
+        ]);
+    }
+
+    public function restoreAlumni(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        // Restore profile if exists
+        \App\Models\AlumniProfile::onlyTrashed()->where('user_id', $user->id)->restore();
+
+        \Illuminate\Support\Facades\Cache::forget('admin_dashboard_stats');
+        \Illuminate\Support\Facades\Cache::forget('alumni_registry_queue');
+
+        return redirect()->back()->with('success', 'Account restored successfully!');
+    }
+
+    public function purgeAlumni(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        
+        // Force delete profile if exists
+        \App\Models\AlumniProfile::onlyTrashed()->where('user_id', $user->id)->forceDelete();
+        
+        $user->forceDelete();
+
+        return redirect()->back()->with('success', 'Account permanently purged!');
+    }
 }

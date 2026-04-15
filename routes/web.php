@@ -34,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/verifications', [\App\Http\Controllers\AdminController::class, 'queue'])->name('admin.verifications.queue');
     Route::post('/admin/verifications/{id}/in-review', [\App\Http\Controllers\AdminController::class, 'markAsReviewing'])->name('admin.verifications.in_review');
     Route::post('/admin/verifications/{id}/approve', [\App\Http\Controllers\AdminController::class, 'approve'])->name('admin.verifications.approve');
+    
+    // Account Governance & Trash Center
+    Route::delete('/admin/users/{id}', [\App\Http\Controllers\AdminController::class, 'destroyAlumni'])->name('admin.users.destroy');
+    Route::get('/admin/trash', [\App\Http\Controllers\AdminController::class, 'trash'])->name('admin.trash');
+    Route::post('/admin/trash/{id}/restore', [\App\Http\Controllers\AdminController::class, 'restoreAlumni'])->name('admin.users.restore');
+    Route::delete('/admin/trash/{id}/purge', [\App\Http\Controllers\AdminController::class, 'purgeAlumni'])->name('admin.users.purge');
 
     Route::post('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');
     Route::post('/alumni/toggle-availability', [AlumniProfileController::class, 'toggleAvailability'])->name('alumni.toggle_availability');

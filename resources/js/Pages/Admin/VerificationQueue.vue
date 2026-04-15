@@ -21,6 +21,8 @@ const certTypeFilter = ref('');
 
 const currentPreview = ref(null);
 const showPreviewModal = ref(false);
+const showProfilePreview = ref(false);
+const previewingProfile = ref(null);
 
 const ranks = computed(() => [...new Set(props.queue?.map(p => p.rank))].filter(Boolean));
 const regions = computed(() => [...new Set(props.queue?.map(p => p.region))].filter(Boolean));
@@ -49,6 +51,11 @@ const reviewProfile = (profile) => {
 const previewFile = (url) => {
     currentPreview.value = url.startsWith('http') ? url : `/storage/${url}`;
     showPreviewModal.value = true;
+};
+
+const inspectProfile = (profile) => {
+    previewingProfile.value = profile;
+    showProfilePreview.value = true;
 };
 
 const markAsReviewing = () => {
@@ -289,7 +296,14 @@ const getStatus = (status) => statusConfig[status] || statusConfig.unverified;
                                     </td>
 
                                     <!-- Action -->
-                                    <td class="px-8 py-5 text-right">
+                                    <td class="px-8 py-5 text-right flex items-center justify-end gap-2">
+                                        <button
+                                            @click="inspectProfile(profile)"
+                                            class="p-2.5 bg-gray-100 text-gray-500 hover:bg-indigo-600 hover:text-white rounded-xl transition-all active:scale-95"
+                                            title="Quick View Profile"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        </button>
                                         <button
                                             @click="reviewProfile(profile)"
                                             class="inline-flex items-center gap-2.5 px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-900 hover:bg-gray-900 hover:text-white text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-200 active:scale-95 group/btn shadow-sm"
@@ -487,25 +501,110 @@ const getStatus = (status) => statusConfig[status] || statusConfig.unverified;
             </div>
         </SlideOver>
 
-        <!-- ── Preview Modal ── -->
-        <Modal :show="showPreviewModal" @close="showPreviewModal = false" maxWidth="4xl">
-            <div class="bg-white rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div class="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-900 text-white">
+        <!-- ── Document Preview Modal (Clean) ── -->
+        <Modal :show="showPreviewModal" @close="showPreviewModal = false" maxWidth="3xl">
+            <div class="bg-[#0A0B10] rounded-2xl overflow-hidden flex flex-col max-h-[90vh] ring-1 ring-white/10 shadow-2xl">
+                <div class="px-7 py-4 border-b border-white/5 flex items-center justify-between bg-gray-900 text-white relative">
                     <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
-                        <h3 class="text-xs font-black uppercase tracking-[0.3em]">Vault Asset Inspection</h3>
+                        <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-white/90">Vault Asset Inspection</h3>
                     </div>
-                    <button @click="showPreviewModal = false" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white hover:text-gray-900 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <button @click="showPreviewModal = false" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white flex items-center justify-center transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
-                <div class="p-10 flex-grow overflow-y-auto flex items-center justify-center bg-gray-950/5">
-                    <img v-if="isImage(currentPreview)" :src="currentPreview" class="max-w-full h-auto rounded-2xl shadow-2xl border-8 border-white" />
-                    <iframe v-else :src="currentPreview" class="w-full h-[70vh] rounded-xl border-4 border-white shadow-xl bg-white" frameborder="0"></iframe>
+                <div class="flex-grow p-6 bg-gray-950 flex items-center justify-center overflow-hidden relative">
+                    <img v-if="isImage(currentPreview)" 
+                         :src="currentPreview" 
+                         class="max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl border border-white/10" />
+                    
+                    <iframe v-else 
+                            :src="currentPreview" 
+                            class="w-full h-[60vh] rounded-lg border border-white/10 bg-white shadow-2xl"></iframe>
                 </div>
-                <div class="px-8 py-5 bg-white border-t border-gray-100 flex justify-end">
-                    <button @click="showPreviewModal = false" class="px-8 py-3 bg-gray-900 text-white rounded-xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-colors shadow-lg">
-                        Close Preview
+                <div class="px-7 py-4 bg-[#0E0F15] border-t border-white/5 flex items-center justify-between font-mono font-black text-white/20 text-[9px] uppercase tracking-widest">
+                    <span>Registry Audit Security</span>
+                    <span>Rayterton Ledger Core</span>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- ── Full Profile Preview Modal (Visionary CV for Admin) ── -->
+        <Modal :show="showProfilePreview" @close="showProfilePreview = false" maxWidth="3xl">
+            <div class="bg-white rounded-3xl overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
+                <div class="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-900 text-white">
+                    <div>
+                        <h3 class="text-sm font-black uppercase tracking-wider">Candidate Inspection Profile</h3>
+                        <p class="text-[10px] text-gray-400 mt-0.5">{{ previewingProfile?.alumni_code }} · Audit Mode Active</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button @click="showProfilePreview = false; reviewProfile(previewingProfile)" class="px-4 py-2 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-500 transition-colors shadow-lg active:scale-95">
+                            Enter Audit Mode
+                        </button>
+                        <button @click="showProfilePreview = false" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="previewingProfile" class="p-10 overflow-y-auto flex-grow bg-white space-y-10">
+                    <!-- Hero Section -->
+                    <div class="flex items-start gap-8 pb-8 border-b border-gray-100">
+                        <div class="w-32 h-44 rounded-xl overflow-hidden shadow-xl border-4 border-gray-50 flex-shrink-0">
+                            <img v-if="previewingProfile.avatar_url" :src="`/storage/${previewingProfile.avatar_url}`" class="w-full h-full object-cover" />
+                            <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-3xl font-black">?</div>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-4xl font-black text-gray-900 leading-tight tracking-tight">{{ previewingProfile.full_name }}</h4>
+                            <p class="text-lg font-black text-indigo-600 mt-1 uppercase tracking-wide">{{ previewingProfile.rank }}</p>
+                            <div class="grid grid-cols-2 gap-x-8 gap-y-3 mt-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-16">Region</span>
+                                    <span class="text-xs font-bold text-gray-700">{{ previewingProfile.region || '—' }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest w-16">Phone</span>
+                                    <span class="text-xs font-bold text-gray-700">{{ previewingProfile.phone || '—' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Matrix -->
+                    <div class="grid grid-cols-2 gap-10">
+                        <!-- Left -->
+                        <div class="space-y-8">
+                            <div>
+                                <h5 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4 border-b border-indigo-50 pb-2">Academic History</h5>
+                                <div v-for="edu in previewingProfile.educations" :key="edu.id" class="relative pl-5 border-l-2 border-gray-100 mb-4">
+                                    <div class="absolute -left-1.5 top-1 w-2.5 h-2.5 rounded-full bg-indigo-400 border-2 border-white"></div>
+                                    <p class="text-xs font-black text-gray-900 uppercase">{{ edu.institution_name }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">{{ edu.degree_program }} · {{ edu.graduation_year }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right -->
+                        <div class="space-y-8">
+                            <div>
+                                <h5 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-4 border-b border-amber-50 pb-2">Competency Vault</h5>
+                                <div v-for="cert in previewingProfile.certificates" :key="cert.id" class="p-3 bg-gray-50 border border-gray-100 rounded-xl mb-2 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-900 uppercase">{{ cert.cert_name }}</p>
+                                        <p class="text-[8px] font-mono text-gray-400 mt-0.5">{{ cert.cert_type }} · {{ cert.cert_number }}</p>
+                                    </div>
+                                    <div v-if="cert.verification_status === 'cleared'" class="text-emerald-500">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rayterton Audit Module Hub</p>
+                    <button @click="showProfilePreview = false" class="px-6 py-3 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-600 transition-colors shadow-lg">
+                        Close Inspection
                     </button>
                 </div>
             </div>
