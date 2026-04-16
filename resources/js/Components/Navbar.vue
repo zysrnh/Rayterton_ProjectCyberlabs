@@ -93,13 +93,16 @@ const emit = defineEmits(['toggle-sidebar']);
                                                             <p class="text-xs font-black text-gray-900 uppercase tracking-tighter">{{ reg.full_name || 'Anonymous Resident' }}</p>
                                                             <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{{ new Date(reg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</span>
                                                         </div>
-                                                        <p v-if="reg.verification_status === 'pending'" class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Verification Requested</p>
-                                                        <p v-else-if="reg.verification_status === 'unverified'" class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">New Resident Registration</p>
-                                                        <p v-else class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">System Status Update</p>
+                                                        <p v-if="reg.verification_status === 'pending'" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-600 text-[8px] font-black text-white uppercase tracking-[0.15em] rounded-md mt-1 shadow-sm">
+                                                            <span class="w-1 h-1 bg-white rounded-full animate-pulse"></span>
+                                                            Protocol: Awaiting Audit
+                                                        </p>
+                                                        <p v-else-if="reg.verification_status === 'unverified'" class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">New Resident Registration</p>
+                                                        <p v-else class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">System Status Update</p>
                                                         
-                                                        <p class="text-[8px] font-black text-gray-300 uppercase mt-1 tracking-[0.1em]">{{ new Date(reg.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}</p>
+                                                        <p class="text-[8px] font-black text-gray-300 uppercase mt-1.5 tracking-[0.1em]">{{ new Date(reg.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}</p>
                                                     </div>
-                                                    <div :class="['w-1.5 h-1.5 rounded-full shadow-lg', reg.verification_status === 'pending' ? 'bg-indigo-500 shadow-indigo-200 animate-pulse' : 'bg-amber-400 shadow-amber-200']"></div>
+                                                    <div :class="['w-1.5 h-1.5 rounded-full shadow-lg flex-shrink-0', reg.verification_status === 'pending' ? 'bg-indigo-500 shadow-indigo-200 animate-pulse' : 'bg-amber-400 shadow-amber-200']"></div>
                                                 </div>
                                             </Link>
                                         </div>

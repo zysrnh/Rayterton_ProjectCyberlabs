@@ -20,7 +20,7 @@ class AlumniDataController extends Controller
 
         $path = null;
         if ($request->hasFile('diploma_file')) {
-            $path = $request->file('diploma_file')->store('diplomas', 'public');
+            $path = $request->file('diploma_file')->store('diplomas', 'local');
         }
 
         $profile->educations()->create([
@@ -52,7 +52,7 @@ class AlumniDataController extends Controller
 
         $path = null;
         if ($request->hasFile('cert_file')) {
-            $path = $request->file('cert_file')->store('certificates', 'public');
+            $path = $request->file('cert_file')->store('certificates', 'local');
         }
 
         $profile->certificates()->create([
@@ -86,7 +86,7 @@ class AlumniDataController extends Controller
 
         $path = null;
         if ($request->hasFile('contract_file')) {
-            $path = $request->file('contract_file')->store('sea_services', 'public');
+            $path = $request->file('contract_file')->store('sea_services', 'local');
         }
 
         // Calculate duration in months approximately
@@ -134,7 +134,7 @@ class AlumniDataController extends Controller
         ];
 
         if ($request->hasFile('diploma_file')) {
-            $updateData['diploma_file_url'] = $request->file('diploma_file')->store('diplomas', 'public');
+            $updateData['diploma_file_url'] = $request->file('diploma_file')->store('diplomas', 'local');
         }
 
         $edu->update($updateData);
@@ -185,7 +185,7 @@ class AlumniDataController extends Controller
         ];
 
         if ($request->hasFile('cert_file')) {
-            $updateData['cert_file_url'] = $request->file('cert_file')->store('certificates', 'public');
+            $updateData['cert_file_url'] = $request->file('cert_file')->store('certificates', 'local');
         }
 
         $cert->update($updateData);
@@ -244,7 +244,7 @@ class AlumniDataController extends Controller
         ];
 
         if ($request->hasFile('contract_file')) {
-            $updateData['contract_file_url'] = $request->file('contract_file')->store('sea_services', 'public');
+            $updateData['contract_file_url'] = $request->file('contract_file')->store('sea_services', 'local');
         }
 
         $sea->update($updateData);

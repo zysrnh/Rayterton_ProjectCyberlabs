@@ -47,7 +47,10 @@ defineEmits(['close']);
                     :class="[route().current('admin.verifications.queue') ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white', 'group flex items-center px-4 py-3.5 text-xs font-black uppercase tracking-widest rounded-2xl transition-all duration-300']"
                 >
                     <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Registry Control
+                    <span class="flex-grow">Registry Control</span>
+                    <span v-if="$page.props.notifications.pending_count > 0" class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-black text-white bg-indigo-500 rounded-lg shadow-lg shadow-indigo-500/40 transform group-hover:scale-110 transition-transform">
+                        {{ $page.props.notifications.pending_count }}
+                    </span>
                 </Link>
                 <Link 
                     v-if="$page.props.auth.user.role_id === 'super_admin'"

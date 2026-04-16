@@ -49,7 +49,8 @@ const reviewProfile = (profile) => {
 };
 
 const previewFile = (url) => {
-    currentPreview.value = url.startsWith('http') ? url : `/storage/${url}`;
+    // We use the vault access protocol instead of direct storage URL
+    currentPreview.value = url.startsWith('http') ? url : `/vault/access/${url}`;
     showPreviewModal.value = true;
 };
 
@@ -220,104 +221,141 @@ const getStatus = (status) => statusConfig[status] || statusConfig.unverified;
 
                 <!-- ── Main Table ── -->
                 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                    <!-- Table Header -->
-                    <div class="flex items-center justify-between px-8 py-5 border-b border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <h3 class="text-sm font-black text-gray-900 uppercase tracking-wider">Active Registry Records</h3>
-                            <span class="text-[10px] text-gray-400 font-medium">— Live from secure maritime ledger</span>
-                        </div>
-                        <div class="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                            {{ filteredQueue.length }} Matches
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div v-if="!filteredQueue.length" class="py-32 flex flex-col items-center justify-center gap-5 text-center">
-                        <div class="w-20 h-20 rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-black text-gray-400 uppercase tracking-widest">No records found</p>
-                            <p class="text-xs text-gray-300 mt-1">Try adjusting your filters or search query</p>
-                        </div>
-                    </div>
-
-                    <!-- Table -->
-                    <div v-else class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b border-gray-100 bg-gray-50/50">
-                                    <th class="text-left px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-[40%]">Maritime Agent</th>
-                                    <th class="text-left px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Role / Region</th>
-                                    <th class="text-left px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
-                                    <th class="text-right px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="profile in filteredQueue"
-                                    :key="profile.id"
-                                    class="border-b border-gray-50 hover:bg-gray-50/60 transition-colors group"
-                                >
-                                    <!-- Agent Identity -->
-                                    <td class="px-8 py-5">
-                                        <div class="flex items-center gap-5">
-                                            <div class="flex-shrink-0 w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 shadow-sm ring-2 ring-white group-hover:ring-indigo-100 transition-all">
-                                                <img v-if="profile.avatar_url" :src="`/storage/${profile.avatar_url}`" class="w-full h-full object-cover" />
-                                                <div v-else class="w-full h-full bg-gray-800 flex items-center justify-center text-white font-black text-xl">
-                                                    {{ profile.full_name?.charAt(0) }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p class="text-[15px] font-black text-gray-900 leading-tight tracking-tight">{{ profile.full_name }}</p>
-                                                <div class="flex items-center gap-3 mt-1.5">
-                                                    <span class="text-[10px] font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-lg uppercase tracking-wider">{{ profile.alumni_code }}</span>
-                                                    <span class="text-[10px] text-gray-400 font-medium">📂 {{ profile.certificates?.length || 0 }} certs</span>
-                                                </div>
-                                            </div>
+                            <!-- Table Header -->
+                            <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/30">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex flex-col">
+                                        <h3 class="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Audit Ledger Registry</h3>
+                                        <p class="text-[10px] text-gray-400 font-medium mt-0.5 italic">— Real-time maritime intelligence feed</p>
+                                    </div>
+                                    <div class="h-8 w-px bg-gray-200 mx-2"></div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-[16px] font-black text-gray-900">{{ stats.pending }}</span>
+                                            <span class="text-[8px] font-black text-amber-500 uppercase tracking-widest">Awaiting</span>
                                         </div>
-                                    </td>
-
-                                    <!-- Role / Region -->
-                                    <td class="px-6 py-5">
-                                        <p class="text-xs font-black text-gray-800 uppercase tracking-tight leading-none">{{ profile.rank }}</p>
-                                        <p class="text-[11px] text-gray-400 font-medium mt-1.5 uppercase tracking-widest">{{ profile.region }}</p>
-                                    </td>
-
-                                    <!-- Status Badge -->
-                                    <td class="px-6 py-5">
-                                        <div :class="['inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider', getStatus(profile.verification_status).badge]">
-                                            <span :class="['w-1.5 h-1.5 rounded-full flex-shrink-0', getStatus(profile.verification_status).dot]"></span>
-                                            {{ getStatus(profile.verification_status).label }}
+                                        <div class="flex flex-col">
+                                            <span class="text-[16px] font-black text-gray-900">{{ stats.verified }}</span>
+                                            <span class="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Authorized</span>
                                         </div>
-                                    </td>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="hidden md:flex flex-col items-end mr-4">
+                                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Audit Progress Coverage</p>
+                                        <div class="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden flex shadow-inner">
+                                            <div :style="{ width: `${(stats.verified / (props.queue?.length || 1)) * 100}%` }" class="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-1000"></div>
+                                            <div :style="{ width: `${(stats.in_review / (props.queue?.length || 1)) * 100}%` }" class="h-full bg-indigo-500 transition-all duration-1000"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-gray-950 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-gray-900/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        {{ filteredQueue.length }} Sync Records
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <!-- Action -->
-                                    <td class="px-8 py-5 text-right flex items-center justify-end gap-2">
-                                        <button
-                                            @click="inspectProfile(profile)"
-                                            class="p-2.5 bg-gray-100 text-gray-500 hover:bg-indigo-600 hover:text-white rounded-xl transition-all active:scale-95"
-                                            title="Quick View Profile"
+                            <!-- Table -->
+                            <div v-if="filteredQueue.length" class="overflow-x-auto">
+                                <table class="w-full border-separate border-spacing-0">
+                                    <thead>
+                                        <tr class="text-left bg-white">
+                                            <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-[45%] border-b border-gray-100 italic">Agent Identity & Protocol</th>
+                                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">Clearance Info</th>
+                                            <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 text-center">Audit Status</th>
+                                            <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right border-b border-gray-100">Operation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        <tr
+                                            v-for="profile in filteredQueue"
+                                            :key="profile.id"
+                                            :class="[
+                                                'transition-all duration-300 group',
+                                                profile.verification_status === 'pending' ? 'bg-amber-50/30 hover:bg-amber-50/60' : 'hover:bg-gray-50/80'
+                                            ]"
                                         >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        </button>
-                                        <button
-                                            @click="reviewProfile(profile)"
-                                            class="inline-flex items-center gap-2.5 px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-900 hover:bg-gray-900 hover:text-white text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-200 active:scale-95 group/btn shadow-sm"
-                                        >
-                                            <svg class="w-3.5 h-3.5 opacity-60 group-hover/btn:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                            </svg>
-                                            Audit
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                            <!-- Agent Identity -->
+                                            <td class="px-8 py-6">
+                                                <div class="flex items-center gap-6">
+                                                    <div class="relative flex-shrink-0">
+                                                        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 ring-4 ring-white group-hover:ring-indigo-100 shadow-lg transition-all transform group-hover:scale-105">
+                                                            <img v-if="profile.avatar_url" :src="`/vault/access/${profile.avatar_url}`" class="w-full h-full object-cover" />
+                                                            <div v-else class="w-full h-full bg-gray-900 flex items-center justify-center text-white font-black text-2xl uppercase italic">
+                                                                {{ profile.full_name?.charAt(0) }}
+                                                            </div>
+                                                        </div>
+                                                        <!-- NEW Pulse Indicator -->
+                                                        <div v-if="profile.verification_status === 'pending'" class="absolute -top-2 -right-2 flex">
+                                                            <span class="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 animate-ping"></span>
+                                                            <span class="relative inline-flex rounded-lg px-2 py-0.5 bg-rose-600 text-[8px] font-black text-white uppercase tracking-tighter shadow-lg">NEW</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="flex items-center gap-2">
+                                                            <p class="text-[17px] font-black text-gray-900 tracking-tight truncate leading-none uppercase italic">{{ profile.full_name }}</p>
+                                                        </div>
+                                                        <div class="flex items-center gap-3 mt-2.5">
+                                                            <span class="text-[9px] font-mono font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm">{{ profile.alumni_code }}</span>
+                                                            <div class="flex items-center gap-1.5">
+                                                                <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                                                <span class="text-[9px] text-gray-400 font-black uppercase tracking-widest italic">{{ profile.certificates?.length || 0 }} Assets Filed</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Role / Region -->
+                                            <td class="px-6 py-6">
+                                                <div class="flex flex-col">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                                        <p class="text-[11px] font-black text-gray-800 uppercase tracking-tight">{{ profile.rank }}</p>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 mt-2">
+                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic">{{ profile.region }} Operation</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Status -->
+                                            <td class="px-6 py-6 text-center">
+                                                <div class="flex flex-col items-center gap-2">
+                                                    <div :class="['inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-[0.1em] shadow-sm italic', getStatus(profile.verification_status).badge]">
+                                                        <span :class="['w-1.5 h-1.5 rounded-full flex-shrink-0', getStatus(profile.verification_status).dot]"></span>
+                                                        {{ getStatus(profile.verification_status).label }}
+                                                    </div>
+                                                    <p v-if="profile.verification_status === 'pending'" class="text-[8px] font-black text-rose-500 animate-pulse tracking-widest uppercase">Immediate Audit Required</p>
+                                                </div>
+                                            </td>
+
+                                            <!-- Action -->
+                                            <td class="px-8 py-6 text-right">
+                                                <div class="flex items-center justify-end gap-3">
+                                                    <button
+                                                        @click="inspectProfile(profile)"
+                                                        class="w-11 h-11 bg-white border-2 border-gray-100 text-gray-400 hover:border-indigo-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-95 shadow-sm inline-flex items-center justify-center transform group-hover:rotate-3"
+                                                        title="Quick Analysis"
+                                                    >
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                    </button>
+                                                    <button
+                                                        @click="reviewProfile(profile)"
+                                                        class="inline-flex items-center gap-3 px-6 py-3 bg-gray-950 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-600 shadow-2xl shadow-gray-900/40 transition-all active:scale-95 group/btn"
+                                                    >
+                                                        <svg class="w-4 h-4 text-indigo-400 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                                        </svg>
+                                                        Execute Audit
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                 </div>
 
             </div>
@@ -339,7 +377,7 @@ const getStatus = (status) => statusConfig[status] || statusConfig.unverified;
                             class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 flex-shrink-0 cursor-pointer hover:scale-105 transition-transform shadow-2xl"
                             @click="selectedProfile.avatar_url ? previewFile(selectedProfile.avatar_url) : null"
                         >
-                            <img v-if="selectedProfile.avatar_url" :src="`/storage/${selectedProfile.avatar_url}`" class="w-full h-full object-cover" />
+                            <img v-if="selectedProfile.avatar_url" :src="`/vault/access/${selectedProfile.avatar_url}`" class="w-full h-full object-cover" />
                             <div v-else class="w-full h-full bg-white/10 flex items-center justify-center font-black text-3xl text-white/30">{{ selectedProfile.full_name?.charAt(0) }}</div>
                         </div>
                         <div class="min-w-0 flex-grow">
@@ -551,7 +589,7 @@ const getStatus = (status) => statusConfig[status] || statusConfig.unverified;
                     <!-- Hero Section -->
                     <div class="flex items-start gap-8 pb-8 border-b border-gray-100">
                         <div class="w-32 h-44 rounded-xl overflow-hidden shadow-xl border-4 border-gray-50 flex-shrink-0">
-                            <img v-if="previewingProfile.avatar_url" :src="`/storage/${previewingProfile.avatar_url}`" class="w-full h-full object-cover" />
+                            <img v-if="previewingProfile.avatar_url" :src="`/vault/access/${previewingProfile.avatar_url}`" class="w-full h-full object-cover" />
                             <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-3xl font-black">?</div>
                         </div>
                         <div class="flex-grow">

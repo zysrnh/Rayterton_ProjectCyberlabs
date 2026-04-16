@@ -64,6 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Secure Document Vault Proxy
+    Route::get('/vault/access/{path}', [\App\Http\Controllers\FileControlController::class, 'access'])
+        ->where('path', '.*')
+        ->name('vault.access');
 });
 
 require __DIR__.'/auth.php';

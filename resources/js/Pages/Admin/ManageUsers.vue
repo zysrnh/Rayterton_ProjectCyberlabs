@@ -1,7 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage, router } from '@inertiajs/vue3';
 import SlideOver from '@/Components/SlideOver.vue';
+import Modal from '@/Components/Modal.vue';
 import { ref } from 'vue';
 
 const props = defineProps({

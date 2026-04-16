@@ -30,7 +30,7 @@ class AlumniProfileController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = $request->file('avatar')->store('avatars', 'local');
             $profile->avatar_url = $path;
         }
 

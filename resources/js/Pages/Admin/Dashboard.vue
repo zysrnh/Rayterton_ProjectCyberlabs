@@ -87,7 +87,7 @@ defineProps({
                                 <div v-for="profile in recentVerified" :key="profile.id" class="p-6 rounded-2xl flex items-center justify-between hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
                                     <div class="flex items-center gap-6">
                                         <div class="w-14 h-14 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                                            <img v-if="profile.avatar_url" :src="`/storage/${profile.avatar_url}`" class="w-full h-full object-cover" />
+                                            <img v-if="profile.avatar_url" :src="`/vault/access/${profile.avatar_url}`" class="w-full h-full object-cover" />
                                             <div v-else class="w-full h-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl">
                                                 {{ profile.full_name?.charAt(0) || '?' }}
                                             </div>

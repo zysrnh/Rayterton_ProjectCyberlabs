@@ -53,7 +53,8 @@ const editIdSea = ref(null);
 const deleteData = ref({ type: '', id: null });
 
 const previewFile = (url) => {
-    currentPreview.value = url.startsWith('http') ? url : `/storage/${url}`;
+    // We use the secure proxy instead of direct storage access
+    currentPreview.value = url.startsWith('http') ? url : `/vault/access/${url}`;
     showPreviewModal.value = true;
 };
 const isImage = (url) => {
@@ -238,7 +239,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                             <!-- Avatar -->
                             <div class="sm:w-56 bg-gray-50 border-r border-gray-100 p-8 flex flex-col items-center justify-center gap-6 flex-shrink-0">
                                 <div :class="['relative w-32 h-32 rounded-2xl overflow-hidden shadow-xl', isVerified ? 'ring-4 ring-emerald-400/40 ring-offset-2' : '']">
-                                    <img v-if="props.profile?.avatar_url" :src="`/storage/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
+                                    <img v-if="props.profile?.avatar_url" :src="`/vault/access/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
                                     <div v-else class="w-full h-full bg-gray-800 flex items-center justify-center text-white text-4xl font-black">{{ props.profile?.full_name?.charAt(0) || '?' }}</div>
                                     <div v-if="isVerified" class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-xl shadow-lg border-4 border-white">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -358,7 +359,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                                             </div>
                                             <div v-else class="w-full h-full">
                                                 <img v-if="form.avatar" :src="URL.createObjectURL(form.avatar)" class="w-full h-full object-cover" />
-                                                <img v-else :src="`/storage/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
+                                                <img v-else :src="`/vault/access/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
                                             </div>
                                         </div>
                                         <div class="absolute -bottom-2.5 -right-2.5 w-9 h-9 bg-gray-900 border-4 border-white text-white rounded-xl flex items-center justify-center shadow-lg z-20 pointer-events-none">
@@ -867,7 +868,7 @@ const currentStatus = computed(() => statusMap[props.profile?.verification_statu
                     <!-- CV Header -->
                     <div class="flex items-start gap-8 pb-8 border-b border-gray-100">
                         <div class="w-32 h-44 rounded-xl overflow-hidden shadow-xl border-4 border-gray-50 flex-shrink-0">
-                            <img v-if="props.profile?.avatar_url" :src="`/storage/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
+                            <img v-if="props.profile?.avatar_url" :src="`/vault/access/${props.profile.avatar_url}`" class="w-full h-full object-cover" />
                             <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-3xl font-black">?</div>
                         </div>
                         <div class="flex-grow">
