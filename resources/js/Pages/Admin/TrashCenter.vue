@@ -1,3 +1,4 @@
+<script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
