@@ -215,4 +215,78 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Account permanently purged!');
     }
+
+    public function contacts(Request $request)
+    {
+        if (!in_array($request->user()->role_id, ['super_admin', 'verifier'])) {
+            abort(403);
+        }
+
+        $messages = \App\Models\ContactMessage::orderBy('created_at', 'desc')->get();
+
+        return Inertia::render('Admin/ContactMessages', [
+            'messages' => $messages
+        ]);
+    }
+
+    public function markContactAsRead(Request $request, $id)
+    {
+        if (!in_array($request->user()->role_id, ['super_admin', 'verifier'])) {
+            abort(403);
+        }
+
+        $message = \App\Models\ContactMessage::findOrFail($id);
+        $message->update(['is_read' => true]);
+
+        return redirect()->back()->with('success', 'Message marked as read!');
+    }
+
+    public function destroyContact(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $message = \App\Models\ContactMessage::findOrFail($id);
+        $message->delete();
+
+        return redirect()->back()->with('success', 'Message moved to trash!');
+    }
+
+    public function trashedContacts(Request $request)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $messages = \App\Models\ContactMessage::onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+
+        return Inertia::render('Admin/TrashContacts', [
+            'messages' => $messages
+        ]);
+    }
+
+    public function restoreContact(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $message = \App\Models\ContactMessage::onlyTrashed()->findOrFail($id);
+        $message->restore();
+
+        return redirect()->back()->with('success', 'Message restored successfully!');
+    }
+
+    public function purgeContact(Request $request, $id)
+    {
+        if ($request->user()->role_id !== 'super_admin') {
+            abort(403);
+        }
+
+        $message = \App\Models\ContactMessage::onlyTrashed()->findOrFail($id);
+        $message->forceDelete();
+
+        return redirect()->back()->with('success', 'Message permanently purged!');
+    }
 }
