@@ -13,6 +13,7 @@ Route::view('/', 'pages.home')->name('home');
 Route::view('/about', 'pages.about')->name('about');
 
 Route::view('/contact', 'pages.contact')->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
@@ -37,6 +38,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/trash', [\App\Http\Controllers\AdminController::class, 'trash'])->name('admin.trash');
     Route::post('/admin/trash/{id}/restore', [\App\Http\Controllers\AdminController::class, 'restoreAlumni'])->name('admin.users.restore');
     Route::delete('/admin/trash/{id}/purge', [\App\Http\Controllers\AdminController::class, 'purgeAlumni'])->name('admin.users.purge');
+
+    // Contact Messages
+    Route::get('/admin/contacts', [\App\Http\Controllers\AdminController::class, 'contacts'])->name('admin.contacts.index');
+    Route::post('/admin/contacts/{id}/read', [\App\Http\Controllers\AdminController::class, 'markContactAsRead'])->name('admin.contacts.read');
+    Route::delete('/admin/contacts/{id}', [\App\Http\Controllers\AdminController::class, 'destroyContact'])->name('admin.contacts.destroy');
+    Route::get('/admin/trash-contacts', [\App\Http\Controllers\AdminController::class, 'trashedContacts'])->name('admin.contacts.trash');
+    Route::post('/admin/trash-contacts/{id}/restore', [\App\Http\Controllers\AdminController::class, 'restoreContact'])->name('admin.contacts.restore');
+    Route::delete('/admin/trash-contacts/{id}/purge', [\App\Http\Controllers\AdminController::class, 'purgeContact'])->name('admin.contacts.purge');
 
     Route::post('/alumni/master-profile', [AlumniProfileController::class, 'updateMasterProfile'])->name('alumni.master-profile.update');
     Route::post('/alumni/toggle-availability', [AlumniProfileController::class, 'toggleAvailability'])->name('alumni.toggle_availability');

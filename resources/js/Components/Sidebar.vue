@@ -67,6 +67,13 @@ defineEmits(['close']);
                     <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     Registry Residents
                 </Link>
+                <Link 
+                    :href="route('admin.contacts.index')" 
+                    :class="[route().current('admin.contacts.index') ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white', 'group flex items-center px-4 py-3.5 text-xs font-black uppercase tracking-widest rounded-2xl transition-all duration-300']"
+                >
+                    <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Contact Inbox
+                </Link>
             </template>
             
             <div class="pt-10">
@@ -91,6 +98,14 @@ defineEmits(['close']);
             >
                 <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 Registry Trash
+            </Link>
+            <Link 
+                v-if="$page.props.auth.user.role_id === 'super_admin'"
+                :href="route('admin.contacts.trash')" 
+                :class="[route().current('admin.contacts.trash') ? 'bg-amber-600 text-white shadow-xl shadow-amber-500/20' : 'text-slate-500 hover:bg-amber-500/10 hover:text-amber-500', 'group flex items-center px-5 py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all duration-300']"
+            >
+                <svg class="mr-4 h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Message Trash
             </Link>
 
             <Link :href="route('logout')" method="post" as="button" class="flex items-center w-full px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-2xl hover:bg-rose-500/10 hover:text-rose-500 transition-all duration-300 group">
