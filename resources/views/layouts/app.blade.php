@@ -20,6 +20,8 @@
 
     <link rel="stylesheet" href="{{ asset('asset/fonts/flaticon/font/flaticon.css') }}">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <link rel="stylesheet" href="{{ asset('asset/css/aos.css') }}">
 
     <link rel="stylesheet" href="{{ asset('asset/css/style.css') }}">
@@ -35,7 +37,7 @@
         @yield('content')
 
         @include('layouts.partials.footer')
-        
+
     </div>
 
     <script src="{{ asset('asset/js/jquery-3.3.1.min.js') }}"></script>

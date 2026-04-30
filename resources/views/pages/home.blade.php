@@ -1,24 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="site-blocks-cover overlay" style="background-image: url({{ asset('asset/images/hero_bg_1.jpg') }});"
+    <div class="site-blocks-cover overlay" style="background-image: url({{ asset('asset/images/ship_bg.jpg') }});"
         data-aos="fade" data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row align-items-center justify-content-center text-center">
 
                 <div class="col-md-8" data-aos="fade-up" data-aos-delay="400">
-
-
-                    <h1 class="text-white font-weight-light mb-5 text-uppercase font-weight-bold">Worldwide Freight
-                        Services</h1>
-                    <p><a href="#" class="btn btn-primary py-3 px-5 text-white">Get Started!</a></p>
+                    
+                    <h1 class="text-white font-weight-light mb-5 font-weight-bold">Corps Alumni Akademi Ilmu
+                        Pelayaran</h1>
+                    <p><a href="#" class="btn btn-primary py-3 px-5 text-white">Tentang Kami</a></p>
 
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
+    {{-- <div class="container">
         <div class="row align-items-center no-gutters align-items-stretch overlap-section">
             <div class="col-md-4">
                 <div class="feature-1 pricing h-100 text-center">
@@ -63,51 +62,72 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="site-section">
         <div class="container">
             <div class="row justify-content-center mb-5">
                 <div class="col-md-7 text-center border-primary">
-                    <h2 class="mb-0 text-primary">What We Offer</h2>
-                    <p class="color-black-opacity-5">Lorem ipsum dolor sit amet.</p>
+                    <h2 class="mb-2 text-primary">Program dan Layanan</h2>
+                    <p class="color-black-opacity-5">
+                        CAAIP menyediakan berbagai program dan layanan untuk mendukung kesejahteraan anggota.
+                    </p>
                 </div>
             </div>
+
             <div class="row align-items-stretch">
-                <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+
+                <!-- Sosial -->
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="unit-4 d-flex">
-                        <div class="unit-4-icon mr-4"><span class="text-primary flaticon-travel"></span></div>
+                        <div class="unit-4-icon mr-4">
+                            <span class="text-primary"><i class="fas fa-hand-holding-heart"></i></span>
+                        </div>
                         <div>
-                            <h3>Air Freight</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis quis molestiae
-                                vitae
-                                eligendi at.</p>
+                            <h3>Sosial</h3>
+                            <p>Beasiswa pendidikan anak yatim alumni, santunan duka.</p>
                             <p class="mb-0"><a href="#">Learn More</a></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+
+                <!-- Karier -->
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="unit-4 d-flex">
-                        <div class="unit-4-icon mr-4"><span class="text-primary flaticon-sea-ship-with-containers"></span>
+                        <div class="unit-4-icon mr-4">
+                            <span class="text-primary"><i class="fas fa-briefcase"></i></span>
                         </div>
                         <div>
-                            <h3>Ocean Freight</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis quis molestiae
-                                vitae
-                                eligendi at.</p>
+                            <h3>Karier</h3>
+                            <p>Lowongan kerja sektor maritim, jejaring bisnis, pelatihan.</p>
                             <p class="mb-0"><a href="#">Learn More</a></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+
+                <!-- Ekonomi -->
+                <div class="col-md-6 col-lg-3 mb-4">
                     <div class="unit-4 d-flex">
-                        <div class="unit-4-icon mr-4"><span class="text-primary flaticon-frontal-truck"></span>
+                        <div class="unit-4-icon mr-4">
+                            <span class="text-primary"><i class="fas fa-coins"></i></span>
                         </div>
                         <div>
-                            <h3>Ground Shipping</h3>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis quis molestiae
-                                vitae
-                                eligendi at.</p>
+                            <h3>Ekonomi</h3>
+                            <p>Bantuan modal usaha bagi purnatugas pelaut.</p>
+                            <p class="mb-0"><a href="#">Learn More</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hobi -->
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="unit-4 d-flex">
+                        <div class="unit-4-icon mr-4">
+                            <span class="text-primary"><i class="fas fa-golf-ball-tee"></i></span>
+                        </div>
+                        <div>
+                            <h3>Hobi</h3>
+                            <p>Komunitas olahraga (Golf, dll) dan silaturahmi angkatan.</p>
                             <p class="mb-0"><a href="#">Learn More</a></p>
                         </div>
                     </div>
