@@ -3,16 +3,28 @@
 @section('content')
     <div class="site-blocks-cover overlay" style="background-image: url({{ asset('asset/images/ship_bg.jpg') }});"
         data-aos="fade" data-stellar-background-ratio="0.5">
+
         <div class="container">
             <div class="row align-items-center justify-content-center text-center">
 
                 <div class="col-md-8" data-aos="fade-up" data-aos-delay="400">
-                    
-                    <h1 class="text-white font-weight-light mb-5 font-weight-bold">Corps Alumni Akademi Ilmu
-                        Pelayaran</h1>
-                    <p><a href="#" class="btn btn-primary py-3 px-5 text-white">Tentang Kami</a></p>
+
+                    <h1 class="text-white font-weight-light mb-3 font-weight-bold">
+                        Selamat Datang di Website CAAIP
+                    </h1>
+
+                    <p class="text-white mb-4" style="font-size:18px; letter-spacing:1px;">
+                        <em>Nauyanam Avasyabhavi, Jivanam Anavasyabhavi</em>
+                    </p>
+
+                    <p>
+                        <a href="#" class="btn btn-primary py-3 px-5 text-white">
+                            Tentang Kami
+                        </a>
+                    </p>
 
                 </div>
+
             </div>
         </div>
     </div>

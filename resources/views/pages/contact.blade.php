@@ -2,8 +2,9 @@
 
 @section('content')
 
-    <div class="site-blocks-cover inner-page-cover overlay" style="background-image: url('{{ asset('asset/images/ship_bg.jpg') }}');"
-        data-aos="fade" data-stellar-background-ratio="0.5">
+    <div class="site-blocks-cover inner-page-cover overlay"
+        style="background-image: url('{{ asset('asset/images/ship_bg.jpg') }}');" data-aos="fade"
+        data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row align-items-center justify-content-center text-center">
 
@@ -22,8 +23,6 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-7 mb-5">
-
-
 
                     @if (session('success'))
                         <div class="alert alert-success">
