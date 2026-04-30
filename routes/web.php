@@ -8,14 +8,11 @@ use Inertia\Inertia;
 use App\Http\Controllers\AlumniProfileController;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::view('/', 'pages.home')->name('home');
+
+Route::view('/about', 'pages.about')->name('about');
+
+Route::view('/contact', 'pages.contact')->name('contact');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
